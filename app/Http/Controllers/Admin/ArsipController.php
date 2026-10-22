@@ -25,7 +25,7 @@ class ArsipController extends Controller
 {
     // 1. Validasi input sesuai form Blade
     $request->validate([
-        'file_arsip'       => 'required|mimes:pdf|max:5120', // Hanya PDF, Maks 5MB
+        'file_arsip'       => 'required|mimes:pdf|max:51200', // Hanya PDF, Maks 50MB
         'judul'            => 'required|string|max:255',
         'kategori'         => 'required|string',
         'tanggal_dokumen'  => 'required|date',
