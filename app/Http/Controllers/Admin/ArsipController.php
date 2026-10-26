@@ -10,10 +10,26 @@ use Illuminate\Support\Facades\Auth;
 
 class ArsipController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $arsips = Arsip::latest()->get();
-        return view('admin.arsip.index', compact('arsips'));
+        $search = $request->input('search');
+        $kategori = $request->input('kategori');
+
+        $query = Arsip::orderBy('tanggal_dokumen', 'desc');
+
+        // Jika ada pencarian berdasarkan Judul
+        if (!empty($search)) {
+            $query->where('judul', 'like', '%' . $search . '%');
+        }
+
+        // Jika ada filter berdasarkan Kategori
+        if (!empty($kategori)) {
+            $query->where('kategori', $kategori);
+        }
+
+        $arsips = $query->get();
+
+        return view('admin.arsip.index', compact('arsips', 'search', 'kategori'));
     }
 
     public function create()
@@ -118,4 +134,38 @@ class ArsipController extends Controller
         return redirect()->route('admin.arsip.index')->with('success', 'Arsip dan file PDF berhasil dihapus permanen!');
     }
     
+    // Fungsi untuk halaman Cetak Laporan (PDF)
+    public function print()
+    {
+        $arsips = Arsip::orderBy('tanggal_dokumen', 'desc')->get();
+        return view('admin.arsip.print', compact('arsips'));
+    }
+
+    // Fungsi untuk Ekspor Data ke Format Excel (CSV)
+    public function export()
+    {
+        $arsips = Arsip::orderBy('tanggal_dokumen', 'desc')->get();
+        $filename = "Laporan_Arsip_Kementerian_" . date('Y-m-d') . ".csv";
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        
+        $handle = fopen('php://output', 'w');
+        // Tulis Baris Header Excel
+        fputcsv($handle, ['No', 'Judul Dokumen', 'Kategori', 'Tanggal Dokumen', 'Keterangan']);
+
+        $no = 1;
+        foreach ($arsips as $arsip) {
+            fputcsv($handle, [
+                $no++,
+                $arsip->judul,
+                $arsip->kategori,
+                $arsip->tanggal_dokumen,
+                $arsip->keterangan ?? '-'
+            ]);
+        }
+        
+        fclose($handle);
+        exit;
+    }
 }

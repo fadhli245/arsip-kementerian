@@ -3,55 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SIM Arsip Kementerian')</title>
-    
+    <title>@yield('title', 'SIM Arsip - Kemenhub Laut')</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
-        
         :root {
-            --navy: #102d4f; --navy2: #173f69; --blue: #245c91; --ink: #18283b;
-            --muted: #718096; --line: #dce4ed; --bg: #f5f7fb; --white: #fff;
-            --red: #a83232; --green: #176b49;
+            --bg-body: #F4F7FE;          /* Abu-abu kebiruan sangat soft dan nyaman di mata */
+            --sidebar-bg: #FFFFFF;       /* Sidebar putih bersih */
+            --sidebar-border: #E2E8F0;   /* Garis tipis rapi */
+            --primary-color: #0284C7;    /* Biru profesional yang cerah dan hidup */
+            --primary-hover: #0369A1;    /* Biru lebih gelap sedikit untuk hover */
+            --text-main: #1E293B;        /* Teks gelap tajam agar mudah dibaca */
+            --text-muted: #64748B;       /* Teks sekunder abu-abu lembut */
+            --card-bg: #FFFFFF;          /* Background kartu putih */
+            --border-color: #E2E8F0;     /* Border umum */
         }
-        
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); display: flex; min-height: 100vh; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar Styling (Terang, Bersih, Profesional) */
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--sidebar-border); box-shadow: 2px 0 10px rgba(0,0,0,0.01); }
+        .sidebar-brand { padding: 25px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); }
+        .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #0284C7, #0369A1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(2,132,199,0.25); }
+        .brand-text h1 { color: #0F172A; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+        .brand-text span { color: var(--primary-color); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        .sidebar-menu { padding: 20px 15px; flex: 1; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+        .menu-label { font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin: 15px 10px 8px 10px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #475569; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 13.5px; transition: all 0.2s ease; }
+        .nav-link:hover { background: #F1F5F9; color: var(--primary-color); }
+        .nav-link.active { background: #E0F2FE; color: #0369A1; font-weight: 700; }
+        .nav-link span.icon { font-size: 16px; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid var(--border-color); background: #FAFAFA; }
+        .btn-logout { width: 100%; background: #FEF2F2; color: #DC2626; border: 1px solid #FEE2E2; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-decoration: none; }
+        .btn-logout:hover { background: #DC2626; color: #FFFFFF; }
+
+        /* Main Content Wrapper */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* CSS Sidebar */
-        .sidebar { width: 260px; background: var(--navy); color: white; padding: 25px 20px; display: flex; flex-direction: column; }
-        .sidebar h2 { font-family: 'Manrope', sans-serif; font-size: 20px; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid var(--navy2); }
-        .nav-link { color: #d3e0ed; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: block; transition: 0.2s; font-size: 14px; font-weight: 500; }
-        .nav-link:hover { background: var(--blue); color: white; }
-        .logout-btn { background: var(--red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 600; width: 100%; text-align: left; font-size: 14px; transition: 0.2s; }
-        .logout-btn:hover { filter: brightness(1.1); }
-        
-        /* CSS Konten Utama */
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; width: 100%; }
+        /* Top Navbar */
+        .top-navbar { height: 70px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); z-index: 10; }
+        .navbar-title { font-size: 13.5px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 36px; height: 36px; background: #E0F2FE; color: #0369A1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; border: 2px solid #BAE6FD; }
+        .user-meta h4 { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+        .user-meta p { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+        /* Content Area */
+        .content-area { flex: 1; overflow-y: auto; padding: 30px; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR MENU KIRI -->
+    <!-- Sidebar Terang & Bersih -->
     <div class="sidebar">
-        <h2>🏛️ SIM Arsip</h2>
-        
-        @if(Auth::check() && Auth::user()->role === 'admin')
-            <a href="{{ route('admin.dashboard') }}" class="nav-link">📊 Dashboard Admin</a>
-            <a href="{{ route('admin.arsip.index') }}" class="nav-link">📂 Kelola Arsip</a>
-            <a href="{{ route('admin.users.index') }}" class="nav-link">👥 Manajemen Pengguna</a>
-        @else
-            <a href="{{ route('pegawai.dashboard') }}" class="nav-link">📊 Dashboard Pegawai</a>
-            <a href="{{ route('pegawai.arsip.index') }}" class="nav-link">🔍 Cari Arsip</a>
-        @endif
+        <div class="sidebar-brand">
+            <div class="brand-icon">⚓</div>
+            <div class="brand-text">
+                <h1>SIM ARSIP</h1>
+                <span>Kemenhub Laut</span>
+            </div>
+        </div>
 
-        <form action="{{ route('logout') }}" method="POST" style="margin-top: auto;">
-            @csrf
-            <button type="submit" class="logout-btn">🚪 Keluar Sistem</button>
-        </form>
+        <div class="sidebar-menu">
+            <div class="menu-label">Menu Utama</div>
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <span class="icon">📊</span> Dasbor Admin
+            </a>
+            <a href="{{ route('admin.arsip.index') }}" class="nav-link {{ request()->routeIs('admin.arsip.*') ? 'active' : '' }}">
+                <span class="icon">📁</span> Kelola Arsip
+            </a>
+            <a href="{{ route('admin.aktivitas') }}" class="nav-link {{ request()->routeIs('admin.aktivitas') ? 'active' : '' }}">
+                <span class="icon">🕒</span> Riwayat Aktivitas
+            </a>
+
+            <div class="menu-label">Sistem</div>
+            <a href="{{ route('admin.users.index') ?? '#' }}" class="nav-link">
+                <span class="icon">👥</span> Manajemen Pengguna
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                @csrf
+                <button type="submit" class="btn-logout">
+                    <span>🚪</span> Keluar Sistem
+                </button>
+            </form>
+        </div>
     </div>
-    <!-- AREA KONTEN KANAN -->
-    <div class="main-content">
-        @yield('content')
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <div class="navbar-title">
+                <span>📍 Direktorat Jenderal Perhubungan Laut</span>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ substr(Auth::user()->nama ?? Auth::user()->name ?? 'A', 0, 1) }}
+                </div>
+                <div class="user-meta">
+                    <h4>{{ Auth::user()->nama ?? Auth::user()->name ?? 'Administrator' }}</h4>
+                    <p>Divisi Pengelolaan Sistem Data</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-area">
+            @yield('content')
+        </div>
     </div>
 
 </body>

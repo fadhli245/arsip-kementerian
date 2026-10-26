@@ -10,20 +10,30 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, ...$roles)
     {
+        // 1. Jika belum login, arahkan ke halaman utama/login
         if (!Auth::check()) {
             return redirect('/');
         }
 
-        $userRole = strtolower(Auth::user()->role ?? '');
+        // 2. Ambil role user, ubah ke huruf kecil dan bersihkan spasi
+        $userRole = strtolower(trim(Auth::user()->role ?? ''));
 
-        // Cek apakah role user ada di dalam daftar role yang diizinkan rute
-        foreach ($roles as $role) {
-            $role = strtolower(trim($role));
-            if ($userRole === $role || str_contains($userRole, $role)) {
-                return $next($request);
-            }
+        // 3. Ubah parameter roles yang dikirim dari rute menjadi huruf kecil
+        $allowedRoles = array_map(function($role) {
+            return strtolower(trim($role));
+        }, $roles);
+
+        // 4. Jika role user cocok dengan salah satu role yang diizinkan (atau mengandung kata 'admin')
+        if (in_array($userRole, $allowedRoles) || ($userRole === 'admin' && in_array('admin', $allowedRoles))) {
+            return $next($request);
         }
 
-        abort(403, 'AKSES DITOLAK');
+        // Khusus untuk user yang rolenya admin, berikan kelonggaran akses ke semua rute admin
+        if ($userRole === 'admin') {
+            return $next($request);
+        }
+
+        // Jika tidak cocok sama sekali, tampilkan 403
+        abort(403, 'AKSES DITOLAK: Peran Anda (' . $userRole . ') tidak diizinkan mengakses halaman ini.');
     }
 }

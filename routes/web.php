@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\ArsipController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController; // <-- Pastikan ini ada
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Pegawai\ArsipController as PegawaiArsipController;
 
 /*
 |--------------------------------------------------------------------------
-| 1. RUTE OTENTIKASI (LOGIN & LOGOUT)
+| 1. RUTE OTENTIKASI (LOGIN & LOGOUT) - JANGAN DI DALAM MIDDLEWARE AUTH!
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
@@ -23,7 +23,8 @@ Route::get('/', function () {
     return view('auth.login');
 })->name('login');
 
-Route::post('/login-proses', [LoginController::class, 'authenticate'])->name('login.proses');
+// Pindahkan rute proses login ke luar agar bisa diakses umum
+Route::post('/login', [LoginController::class, 'authenticate'])->name('login.proses');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
@@ -46,12 +47,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/arsip/{id}', [ArsipController::class, 'update'])->name('admin.arsip.update');
     Route::delete('/admin/arsip/{id}', [ArsipController::class, 'destroy'])->name('admin.arsip.destroy');
 
-    // Manajemen Pengguna (Staf/Admin) -> PINDAH KE SINI AGAR BISA DIAKSES ADMIN
+    // Manajemen Pengguna
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
+    // Fitur Tambahan Admin (Impor, Cetak, Ekspor, Aktivitas)
+    Route::get('/admin/arsip/import', [App\Http\Controllers\Admin\ArsipImportController::class, 'index'])->name('admin.arsip.import');
+    Route::post('/admin/arsip/import', [App\Http\Controllers\Admin\ArsipImportController::class, 'store'])->name('admin.arsip.import.store'); 
+    Route::get('/admin/arsip/print', [App\Http\Controllers\Admin\ArsipController::class, 'print'])->name('admin.arsip.print');
+    Route::get('/admin/arsip/export', [App\Http\Controllers\Admin\ArsipController::class, 'export'])->name('admin.arsip.export');
+    Route::get('/admin/aktivitas', [App\Http\Controllers\Admin\DashboardController::class, 'aktivitas'])->name('admin.aktivitas');
 });
 
 
@@ -67,8 +74,7 @@ Route::middleware(['auth', 'role:user,pegawai'])->group(function () {
         return view('pegawai.dashboard'); 
     })->name('pegawai.dashboard');
 
-    // Pencarian & Unduh Arsip
+    // Pencarian & Unduh Arsip Pegawai
     Route::get('/pegawai/arsip', [PegawaiArsipController::class, 'index'])->name('pegawai.arsip.index');
     Route::get('/pegawai/arsip/{id}/download', [PegawaiArsipController::class, 'download'])->name('pegawai.arsip.download');
-
 });

@@ -9,17 +9,14 @@ class Arsip extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'judul', 
-        'kategori', 
-        'tanggal_dokumen', 
-        'keterangan', 
-        'file_path', 
-        'user_id'
-    ];
+    protected $table = 'arsips'; // Sesuaikan jika nama tabel kamu 'arsips'
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $fillable = [
+        'judul',
+        'kategori',
+        'tanggal_dokumen',
+        'keterangan',
+        'file_path',
+        'user_id',
+    ];
 }
