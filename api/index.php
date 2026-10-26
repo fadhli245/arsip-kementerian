@@ -1,25 +1,33 @@
 <?php
 
-// 1. Buat struktur folder storage di /tmp agar Vercel bisa menulis data
+// 1. Arahkan folder storage dan cache ke /tmp agar writable di Vercel
 $tmpStorage = '/tmp/storage';
-if (!is_dir($tmpStorage)) {
-    mkdir($tmpStorage, 0777, true);
-    mkdir($tmpStorage . '/framework/cache/data', 0777, true);
-    mkdir($tmpStorage . '/framework/views', 0777, true);
-    mkdir($tmpStorage . '/framework/sessions', 0777, true);
-    mkdir($tmpStorage . '/logs', 0777, true);
+$tmpCache = '/tmp/cache';
+
+if (!file_exists($tmpStorage)) {
+    @mkdir($tmpStorage . '/framework/views', 0755, true);
+    @mkdir($tmpStorage . '/framework/sessions', 0755, true);
+    @mkdir($tmpStorage . '/framework/cache', 0755, true);
+    @mkdir($tmpStorage . '/logs', 0755, true);
 }
 
-// 2. Muat autoload Composer
-require __DIR__.'/../vendor/autoload.php';
+if (!file_exists($tmpCache)) {
+    @mkdir($tmpCache, 0755, true);
+}
 
-// 3. Muat instance aplikasi Laravel
-$app = require_once __DIR__.'/../bootstrap/app.php';
+// 2. Set environment path ke /tmp
+app()->useStoragePath($tmpStorage);
+$_ENV['APP_SERVICES_CACHE'] = $tmpCache . '/services.php';
+$_ENV['APP_PACKAGES_CACHE'] = $tmpCache . '/packages.php';
+$_ENV['APP_CONFIG_CACHE']   = $tmpCache . '/config.php';
+$_ENV['APP_ROUTES_CACHE']   = $tmpCache . '/routes.php';
 
-// 4. Paksa Laravel menggunakan path /tmp yang baru saja dibuat
+// 3. Jalankan Laravel secara normal
+require __DIR__ . '/../vendor/autoload.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
 $app->useStoragePath($tmpStorage);
 
-// 5. Tangkap dan jalankan request (Format standar Laravel 10 ke bawah)
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 $response = $kernel->handle(

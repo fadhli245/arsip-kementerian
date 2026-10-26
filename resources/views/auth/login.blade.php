@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - SIM Arsip Kementerian Perhubungan Laut</title>
+    <title>SIM Arsip Kementerian Perhubungan Laut</title>
+    <!-- Kode untuk memanggil logo kecil di tab browser (Favicon) -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -199,7 +201,7 @@
 
             <div class="brand-body">
                 <div class="brand-subtitle">Sistem Informasi</div>
-                <h1>Pengarsipan Dokumen Internal Kementerian</h1>
+                <h1>Pengarsipan Dokumen Internal Pengolahan Data</h1>
                 <p>Mendukung tata kelola arsip yang tertib, aman, dan terintegrasi untuk pelayanan publik yang lebih baik.</p>
                 
                 <div class="feature-list">

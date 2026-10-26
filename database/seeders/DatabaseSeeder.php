@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrator',
             'email' => 'admin@kementerian.go.id',
             'password' => Hash::make('password123'),
-            'role' => 'admin',
+            'role' => 'admin',  
         ]);
 
         // Akun Pegawai

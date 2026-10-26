@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SIM Arsip - Kemenhub Laut')</title>
+    <title>SIM Arsip Kementerian Perhubungan Laut</title>
+    <!-- Kode untuk memanggil logo kecil di tab browser (Favicon) -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
