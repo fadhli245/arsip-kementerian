@@ -1,195 +1,105 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - SIM Arsip')
+@section('title', 'Dashboard Admin - SIM Arsip Kementerian Perhubungan Laut')
 
 @section('content')
-<style>
-    .page-header { margin-bottom: 25px; }
-    .page-header h2 { font-family: 'Manrope', sans-serif; color: var(--navy); font-size: 24px; margin: 0; }
-    .page-header p { color: var(--muted); margin-top: 5px; font-size: 14px; }
-    
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 5px 20px rgba(22,49,78,.03); border: 1px solid #e2eaf2; display: flex; align-items: center; gap: 15px; }
-    .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; }
-    .stat-info h3 { margin: 0; font-size: 28px; color: var(--navy); font-family: 'Manrope', sans-serif; }
-    .stat-info p { margin: 0; font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+<div style="display: flex; flex-direction: column; gap: 25px;">
 
-    .card-1 .stat-icon { background: #e0f2fe; color: #0284c7; }
-    .card-2 .stat-icon { background: #dcfce7; color: #16a34a; }
-    .card-3 .stat-icon { background: #fee2e2; color: #dc2626; }
-    .card-4 .stat-icon { background: #fef9c3; color: #ca8a04; }
-
-    /* Layout untuk Grafik dan Tabel Terbaru */
-    .dashboard-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 25px; align-items: start; }
-    
-    .chart-container { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 5px 20px rgba(22,49,78,.03); border: 1px solid #e2eaf2; text-align: center; }
-    .chart-container h3 { color: var(--navy); margin-top: 0; margin-bottom: 20px; font-family: 'Manrope', sans-serif; font-size: 18px; }
-    
-    .legend-box { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
-    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569; font-weight: 600; }
-    .legend-color { width: 14px; height: 14px; border-radius: 4px; }
-
-    .recent-card { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 5px 20px rgba(22,49,78,.03); border: 1px solid #e2eaf2; }
-    .recent-card h3 { color: var(--navy); margin-top: 0; margin-bottom: 20px; font-family: 'Manrope', sans-serif; font-size: 18px; }
-    
-    table.recent-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    table.recent-table th { background: #f8fafc; color: var(--navy); padding: 10px; border-bottom: 2px solid #e2eaf2; text-align: left; }
-    table.recent-table td { padding: 12px 10px; border-bottom: 1px solid #e2eaf2; color: #334155; }
-    .badge-kategori-small { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-    
-    @media (max-width: 992px) {
-        .dashboard-grid { grid-template-columns: 1fr; }
-    }
-</style>
-
-<div class="page-header">
-    <h2>👋 Selamat Datang, {{ Auth::user()->nama ?? Auth::user()->name ?? 'Administrator' }}!</h2>
-    <p>Berikut adalah ringkasan data arsip di Kementerian Perhubungan Laut saat ini.</p>
-</div>
-
-<!-- Grid 4 Kartu Statistik -->
-<div class="stats-grid">
-    <div class="stat-card card-1">
-        <div class="stat-icon">📁</div>
-        <div class="stat-info">
-            <h3>{{ $totalArsip }}</h3>
-            <p>Total Arsip</p>
+    <!-- Panel Sambutan Admin & Aksi Cepat -->
+    <div style="background: linear-gradient(135deg, #0A2558 0%, #153A7A 100%); color: white; padding: 30px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(10, 37, 88, 0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div>
+            <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #F2C94C; margin-bottom: 8px;">Portal Administrator</div>
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 5px; letter-spacing: -0.5px;">Dashboard Pengelolaan Arsip</h2>
+            <p style="font-size: 14px; color: #E2E8F0; margin: 0; opacity: 0.9;">
+                Kelola dokumen masuk, keluar, dan keputusan untuk seluruh lingkungan instansi.
+            </p>
         </div>
-    </div>
-    <div class="stat-card card-2">
-        <div class="stat-icon">📥</div>
-        <div class="stat-info">
-            <h3>{{ $suratMasuk }}</h3>
-            <p>Surat Masuk</p>
-        </div>
-    </div>
-    <div class="stat-card card-3">
-        <div class="stat-icon">📤</div>
-        <div class="stat-info">
-            <h3>{{ $suratKeluar }}</h3>
-            <p>Surat Keluar</p>
-        </div>
-    </div>
-    <div class="stat-card card-4">
-        <div class="stat-icon">📜</div>
-        <div class="stat-info">
-            <h3>{{ $sk + $laporan }}</h3>
-            <p>SK & Laporan</p>
-        </div>
-    </div>
-</div>
-
-<!-- Layout Menyamping: Grafik Kiri, Arsip Terbaru Kanan -->
-<div class="dashboard-grid">
-    
-    <!-- Bagian Kiri: Grafik -->
-    <div class="chart-container">
-        <h3>Grafik Kategori Arsip</h3>
-        <div style="position: relative; display: inline-block;">
-            <canvas id="customCanvasChart" width="230" height="230"></canvas>
-        </div>
-        <div class="legend-box">
-            <div class="legend-item"><div class="legend-color" style="background: #10b981;"></div> Surat Masuk ({{ $suratMasuk }})</div>
-            <div class="legend-item"><div class="legend-color" style="background: #ef4444;"></div> Surat Keluar ({{ $suratKeluar }})</div>
-            <div class="legend-item"><div class="legend-color" style="background: #f59e0b;"></div> SK ({{ $sk }})</div>
-            <div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div> Laporan ({{ $laporan }})</div>
+        <div>
+            <!-- Tombol Aksi Cepat untuk CRUD -->
+            <a href="{{ route('admin.arsip.create') }}" style="background: #F2C94C; color: #0A2558; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(242, 201, 76, 0.3); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;">
+                <span>➕</span> Tambah Arsip Baru
+            </a>
         </div>
     </div>
 
-    <!-- Bagian Kanan: Tabel Arsip Terbaru -->
-    <div class="recent-card">
-        <h3>📄 Arsip Terakhir Diunggah</h3>
-        <table class="recent-table">
-            <thead>
-                <tr>
-                    <th>Judul Dokumen</th>
-                    <th>Kategori</th>
-                    <th>Tanggal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($arsipTerbaru ?? [] as $arsip)
-                <tr>
-                    <td><strong>{{ Str::limit($arsip->judul, 40) }}</strong></td>
-                    <td><span class="badge-kategori-small">{{ $arsip->kategori }}</span></td>
-                    <td>{{ \Carbon\Carbon::parse($arsip->tanggal_dokumen)->format('d M Y') }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">Belum ada data arsip.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Kartu Statistik Admin (Sesuai Variabel Controller) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;">
+        <!-- Total Keseluruhan -->
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 14px; border: 1px solid #E2E8F0; border-bottom: 4px solid #0A2558; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Total Arsip</div>
+            <div style="font-size: 32px; font-weight: 800; color: #0F172A;">{{ $totalArsip }}</div>
+        </div>
         
-        <div style="margin-top: 15px; text-align: right;">
-            <a href="{{ route('admin.arsip.index') }}" style="color: #0369a1; text-decoration: none; font-size: 13px; font-weight: 600;">Lihat Semua Arsip &rarr;</a>
+        <!-- Kategori: Surat Masuk -->
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 14px; border: 1px solid #E2E8F0; border-bottom: 4px solid #0284C7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Surat Masuk</div>
+            <div style="font-size: 32px; font-weight: 800; color: #0284C7;">{{ $suratMasuk }}</div>
+        </div>
+
+        <!-- Kategori: Surat Keluar -->
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 14px; border: 1px solid #E2E8F0; border-bottom: 4px solid #16A34A; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Surat Keluar</div>
+            <div style="font-size: 32px; font-weight: 800; color: #16A34A;">{{ $suratKeluar }}</div>
+        </div>
+
+        <!-- Kategori: Surat Keputusan -->
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 14px; border: 1px solid #E2E8F0; border-bottom: 4px solid #EAB308; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">SK / Keputusan</div>
+            <div style="font-size: 32px; font-weight: 800; color: #EAB308;">{{ $sk }}</div>
+        </div>
+
+        <!-- Kategori: Laporan -->
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 14px; border: 1px solid #E2E8F0; border-bottom: 4px solid #8B5CF6; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+            <div style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Laporan Kegiatan</div>
+            <div style="font-size: 32px; font-weight: 800; color: #8B5CF6;">{{ $laporan }}</div>
+        </div>
+    </div>
+
+    <!-- Tabel Daftar Arsip Terbaru -->
+    <div style="background: #FFFFFF; border-radius: 14px; border: 1px solid #E2E8F0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+        <div style="padding: 20px 25px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 15px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 8px; margin: 0;">
+                <span>📋</span> 5 Arsip Terakhir Ditambahkan
+            </h3>
+            <a href="{{ route('admin.arsip.index') }}" style="font-size: 13px; color: #0A2558; text-decoration: none; font-weight: 700;">Kelola Semua Arsip →</a>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;">
+                <thead>
+                    <tr style="background: #F8FAFC; color: #475569; border-bottom: 1px solid #E2E8F0;">
+                        <th style="padding: 14px 22px; font-weight: 700;">Judul Dokumen</th>
+                        <th style="padding: 14px 22px; font-weight: 700;">No. Surat</th>
+                        <th style="padding: 14px 22px; font-weight: 700;">Kategori</th>
+                        <th style="padding: 14px 22px; font-weight: 700;">Tanggal Upload</th>
+                        <th style="padding: 14px 22px; font-weight: 700; text-align: right;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($arsipTerbaru as $arsip)
+                    <tr style="border-bottom: 1px solid #F1F5F9; color: #1E293B;">
+                        <td style="padding: 15px 22px; font-weight: 600;">{{ $arsip->judul }}</td>
+                        <td style="padding: 15px 22px; color: #64748B;">{{ $arsip->nomor_surat ?? '-' }}</td>
+                        <td style="padding: 15px 22px;">
+                            <span style="background: #E0F2FE; color: #0369A1; padding: 5px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 700; display: inline-block;">
+                                {{ $arsip->kategori }}
+                            </span>
+                        </td>
+                        <td style="padding: 15px 22px; color: #64748B; font-weight: 500;">{{ $arsip->created_at->diffForHumans() }}</td>
+                        <td style="padding: 15px 22px; text-align: right;">
+                            <a href="{{ route('admin.arsip.edit', $arsip->id) }}" style="color: #F59E0B; text-decoration: none; font-weight: 600; margin-right: 15px;">✏️ Edit</a>
+                            <a href="{{ route('admin.arsip.show', $arsip->id) }}" style="color: #0284C7; text-decoration: none; font-weight: 600;">👁️ Detail</a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #94A3B8; font-weight: 500;">Belum ada arsip yang diinput oleh Admin.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
 </div>
-
-<!-- Script Grafik yang sudah diperbaiki tanda matematikanya -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const canvas = document.getElementById('customCanvasChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        
-        const values = [{{ $suratMasuk }}, {{ $suratKeluar }}, {{ $sk }}, {{ $laporan }}];
-        const colors = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'];
-        const total = values.reduce((a, b) => a + b, 0);
-
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = 90;
-        const innerRadius = 55;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (total === 0) {
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.arc(centerX, centerY, innerRadius, 2 * Math.PI, 0, true);
-            ctx.fillStyle = '#e2eaf2';
-            ctx.fill();
-            
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '14px Manrope, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('Belum ada data', centerX, centerY);
-            return;
-        }
-
-        let startAngle = -0.5 * Math.PI;
-
-        values.forEach((val, index) => {
-            if (val === 0) return;
-            const sliceAngle = (val / total) * 2 * Math.PI;
-            const endAngle = startAngle + sliceAngle;
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
-            ctx.closePath();
-
-            ctx.fillStyle = colors[index];
-            ctx.fill();
-
-            startAngle = endAngle;
-        });
-
-        // Teks Total di tengah ring
-        ctx.fillStyle = '#16314e';
-        ctx.font = 'bold 24px Manrope, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(total, centerX, centerY - 6);
-
-        ctx.fillStyle = '#64748b';
-        ctx.font = '11px Manrope, sans-serif';
-        ctx.fillText('TOTAL ARSIP', centerX, centerY + 14);
-    });
-</script>
 @endsection

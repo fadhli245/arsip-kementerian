@@ -9,7 +9,7 @@
     <div style="background: linear-gradient(135deg, #0A192F 0%, #0284C7 100%); color: white; padding: 35px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); position: relative; overflow: hidden;">
         <div style="position: absolute; right: -20px; bottom: -30px; font-size: 140px; opacity: 0.08; pointer-events: none;">⚓</div>
         <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #38BDF8; margin-bottom: 8px;">Portal Layanan Pegawai</div>
-        <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px;">Selamat Datang, Pegawai Kementerian! 👋</h2>
+        <h2 style="font-size: 26px; font-weight: 800    ; margin-bottom: 10px; letter-spacing: -0.5px;">Selamat Datang, Pegawai Kementerian! 👋</h2>
         <p style="font-size: 14.5px; color: #E2E8F0; max-width: 700px; line-height: 1.6;">
             Akses dokumen internal yang diizinkan, cari arsip kedinasan dengan cepat, dan unduh berkas yang Anda butuhkan untuk mendukung kelancaran tugas kedinasan.
         </p>

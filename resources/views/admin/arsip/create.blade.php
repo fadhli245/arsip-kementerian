@@ -3,81 +3,69 @@
 @section('title', 'Tambah Arsip Baru - SIM Arsip')
 
 @section('content')
-<style>
-    .form-container { background: white; border: 1px solid #e2eaf2; border-radius: 14px; padding: 30px; max-width: 700px; margin: 0 auto; box-shadow: 0 5px 20px rgba(22,49,78,.03); }
-    .form-header { margin-bottom: 25px; border-bottom: 1px solid #e2eaf2; padding-bottom: 15px; }
-    .form-header h2 { color: var(--navy); font-family: 'Manrope', sans-serif; font-size: 22px; }
-    .form-header p { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; outline: none; }
-    .form-control:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(36,92,145,.1); }
-    
-    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
-    .btn-secondary { background: #f0f4f8; color: var(--muted); border: 1px solid var(--line); padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; }
-    .btn-submit { background: linear-gradient(100deg, #163e68, #245c91); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
-    .btn-submit:hover { filter: brightness(1.1); }
-    
-    .error-msg { color: var(--red); font-size: 12px; margin-top: 5px; display: block; }
-</style>
+<div style="display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto;">
 
-<div class="form-container">
-    <div class="form-header">
-        <h2>Tambah Arsip Baru</h2>
-        <p>Isi formulir berikut untuk mendaftarkan dokumen resmi ke dalam sistem.</p>
+    <!-- Header Form -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 15px;">
+        <div>
+            <h2 style="font-size: 22px; font-weight: 800; color: #0A2558; margin: 0;">Tambah Arsip Kedinasan Baru</h2>
+            <p style="font-size: 13.5px; color: #64748B; margin: 5px 0 0 0;">Unggah dokumen baru ke dalam pangkalan data (database) Ditjen Hubla.</p>
+        </div>
+        <a href="{{ route('admin.dashboard') }}" style="background: #F1F5F9; color: #475569; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;">
+            ⬅️ Kembali
+        </a>
     </div>
 
-    <form action="{{ route('admin.arsip.store') }}" method="POST" enctype="multipart/form-data">
-    @csrf
+    <!-- Card Form Utama -->
+    <div style="background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 30px;">
+        
+        <!-- Wajib tambahkan enctype="multipart/form-data" untuk form upload file -->
+        <form action="{{ route('admin.arsip.store') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px;">
+            @csrf <!-- Token keamanan bawaan Laravel -->
 
-       <div class="form-group">
-    <label for="file_arsip">UNGGAH DOKUMEN (Wajib PDF, Maks 5MB)</label>
-    <input type="file" id="file_arsip" name="file_arsip" class="form-control" accept=".pdf" required style="padding: 9px;">
-    @error('file_arsip')
-        <span class="error-msg">{{ $message }}</span>
-    @enderror
-    </div>
+            <!-- Grid untuk Judul dan Nomor Surat -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Judul Dokumen <span style="color: #EF4444;">*</span></label>
+                    <input type="text" name="judul" required placeholder="Contoh: SK Mutasi Pegawai 2026" style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Nomor Surat</label>
+                    <input type="text" name="nomor_surat" placeholder="Contoh: KP.104/1/2/DJPL-26" style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none;">
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="judul">JUDUL ARSIP</label>
-            <input type="text" id="judul" name="judul" class="form-control" value="{{ old('judul') }}" placeholder="Masukkan judul atau perihal dokumen" required>
-            @error('judul')
-                <span class="error-msg">{{ $message }}</span>
-            @enderror
-        </div>
+            <!-- Grid untuk Kategori dan Tanggal -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Kategori Arsip <span style="color: #EF4444;">*</span></label>
+                    <select name="kategori" required style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; background: #FFFFFF; cursor: pointer;">
+                        <option value="">-- Pilih Klasifikasi --</option>
+                        <option value="Surat Masuk">Surat Masuk</option>
+                        <option value="Surat Keluar">Surat Keluar</option>
+                        <option value="Surat Keputusan (SK)">Surat Keputusan (SK)</option>
+                        <option value="Laporan Kegiatan">Laporan Kegiatan</option>
+                    </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Tanggal Dokumen <span style="color: #EF4444;">*</span></label>
+                    <input type="date" name="tanggal_dokumen" required style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none;">
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="kategori">KATEGORI DOKUMEN</label>
-            <select id="kategori" name="kategori" class="form-control" required>
-                <option value="">-- Pilih Kategori --</option>
-                <option value="Surat Masuk" {{ old('kategori') == 'Surat Masuk' ? 'selected' : '' }}>Surat Masuk</option>
-                <option value="Surat Keluar" {{ old('kategori') == 'Surat Keluar' ? 'selected' : '' }}>Surat Keluar</option>
-                <option value="Surat Keputusan (SK)" {{ old('kategori') == 'Surat Keputusan (SK)' ? 'selected' : '' }}>Surat Keputusan (SK)</option>
-                <option value="Laporan Kegiatan" {{ old('kategori') == 'Laporan Kegiatan' ? 'selected' : '' }}>Laporan Kegiatan</option>
-            </select>
-            @error('kategori')
-                <span class="error-msg">{{ $message }}</span>
-            @enderror
-        </div>
+            <!-- Area Upload File -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Unggah File Dokumen <span style="color: #EF4444;">*</span></label>
+                <div style="border: 2px dashed #94A3B8; border-radius: 8px; padding: 25px; text-align: center; background: #F8FAFC; cursor: pointer; position: relative;">
+                    <div style="font-size: 30px; margin-bottom: 10px;">📄</div>
+                    <div style="font-size: 14px; color: #475569; font-weight: 600;">Klik atau seret file ke area ini</div>
+                    <div style="font-size: 12px; color: #94A3B8; margin-top: 5px;">Format yang didukung: PDF, DOCX, JPG (Maks. 5MB)</div>
+                    <!-- Input file disembunyikan tampilannya tapi memenuhi area -->
+                    <input type="file" name="file_arsip" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;">
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="tanggal_dokumen">TANGGAL DOKUMEN</label>
-            <input type="date" id="tanggal_dokumen" name="tanggal_dokumen" class="form-control" value="{{ old('tanggal_dokumen') }}" required>
-            @error('tanggal_dokumen')
-                <span class="error-msg">{{ $message }}</span>
-            @enderror
-        </div>
-
-        <div class="form-group">
-            <label for="keterangan">KETERANGAN / RINGKASAN (OPSIONAL)</label>
-            <textarea id="keterangan" name="keterangan" class="form-control" rows="3" placeholder="Tambahkan catatan singkat mengenai arsip ini...">{{ old('keterangan') }}</textarea>
-        </div>
-
-        <div class="form-actions">
-            <a href="{{ route('admin.arsip.index') }}" class="btn-secondary">Batal</a>
-            <button type="submit" class="btn-submit">Simpan Arsip</button>
-        </div>
-    </form>
-</div>
-@endsection
+            <!-- Keterangan Tambahan -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Keterangan / Ringkasan</label>
+                <textarea name="keterangan" rows="3" placeholder="Tuliskan ringkasan isi arsip jika diperlukan..." style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; resize

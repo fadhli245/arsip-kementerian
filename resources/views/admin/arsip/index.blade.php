@@ -25,9 +25,14 @@
     .alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
 </style>
 
-<div class="page-header">
-    <h2>Kelola Dokumen Arsip</h2>
-    <a href="{{ route('admin.arsip.create') }}" class="btn-add">➕ Tambah Arsip Baru</a>
+<div style="padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <!-- Judul Halaman -->
+    <h2 style="font-size: 24px; font-weight: 800; color: #0A2558; margin: 0;">Kelola Dokumen Arsip</h2>
+    
+    <!-- Tombol Tambah yang Baru dan Menonjol -->
+    <a href="{{ route('admin.arsip.create') }}" style="background-color: #0A2558; color: #FFFFFF; font-weight: 700; font-size: 13.5px; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(10, 37, 88, 0.15); transition: background-color 0.2s;">
+        <span style="color: #F2C94C; font-size: 15px; font-weight: 900;">+</span> Tambah Arsip Baru
+    </a>
 </div>
 
 @if(session('success'))
