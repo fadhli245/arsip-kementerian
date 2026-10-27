@@ -77,4 +77,16 @@ Route::middleware(['auth', 'role:user,pegawai'])->group(function () {
     // Pencarian & Unduh Arsip Pegawai
     Route::get('/pegawai/arsip', [PegawaiArsipController::class, 'index'])->name('pegawai.arsip.index');
     Route::get('/pegawai/arsip/{id}/download', [PegawaiArsipController::class, 'download'])->name('pegawai.arsip.download');
+
+    // Pastikan ini ada di dalam grup route admin kamu
+Route::prefix('admin')->name('admin.')->group(function () {
+    
+    // Rute dashboard yang sudah ada
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Tambahkan baris ini untuk mendaftarkan semua rute CRUD arsip sekaligus!
+    // (index, create, store, show, edit, update, destroy)
+    Route::resource('arsip', \App\Http\Controllers\Admin\ArsipController::class);
+    
+});
 });

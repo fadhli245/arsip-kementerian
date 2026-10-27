@@ -87,8 +87,9 @@
                         </td>
                         <td style="padding: 15px 22px; color: #64748B; font-weight: 500;">{{ $arsip->created_at->diffForHumans() }}</td>
                         <td style="padding: 15px 22px; text-align: right;">
-                            <a href="{{ route('admin.arsip.edit', $arsip->id) }}" style="color: #F59E0B; text-decoration: none; font-weight: 600; margin-right: 15px;">✏️ Edit</a>
-                            <a href="{{ route('admin.arsip.show', $arsip->id) }}" style="color: #0284C7; text-decoration: none; font-weight: 600;">👁️ Detail</a>
+                           <!-- Ubah sementara menjadi tanda pagar (#) -->
+<a href="#" style="color: #F59E0B; text-decoration: none; font-weight: 600; margin-right: 15px;">✏️ Edit</a>
+<a href="#" style="color: #0284C7; text-decoration: none; font-weight: 600;">👁️ Detail</a>
                         </td>
                     </tr>
                     @empty
