@@ -196,13 +196,13 @@
                 </div>
             </div>
             <div class="user-profile">
-                <!-- Tombol Logout Cepat khusus Tampilan Mobile -->
-                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-    @csrf
-    <button type="submit" class="mobile-logout-btn" title="Keluar Sistem">
-        🚪
-    </button>
-</form>
+                <!-- Tombol Logout Cepat khusus Tampilan Mobile menggunakan link pemicu form aman -->
+                <a href="#" onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();" class="mobile-logout-btn" title="Keluar Sistem">
+                    🚪
+                </a>
+                <form id="mobile-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
 
                 <div class="user-avatar">
                     {{ substr(Auth::user()->nama ?? Auth::user()->name ?? 'A', 0, 1) }}
