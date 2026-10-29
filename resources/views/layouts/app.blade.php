@@ -54,6 +54,10 @@
         .hamburger-btn { display: none; background: #F1F5F9; color: var(--primary-color); border: 1px solid var(--border-color); width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; }
         .hamburger-btn:hover { background: #E0F2FE; }
 
+        /* Tombol Logout Khusus Navbar Mobile */
+        .mobile-logout-btn { display: none; background: #FEF2F2; color: #DC2626; border: 1px solid #FEE2E2; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .mobile-logout-btn:hover { background: #DC2626; color: #FFFFFF; }
+
         .user-profile { display: flex; align-items: center; gap: 12px; }
         .user-avatar { width: 36px; height: 36px; background: #E0F2FE; color: #0369A1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; border: 2px solid #BAE6FD; }
         .user-meta h4 { font-size: 13.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; }
@@ -73,13 +77,13 @@
             .sidebar.show { left: 0; }
             .sidebar-backdrop.show { display: block; }
             .hamburger-btn { display: flex; }
+            .mobile-logout-btn { display: flex; } /* Tampilkan tombol logout di navbar HP */
             .top-navbar { padding: 0 15px; height: 60px; }
             .content-area { padding: 12px !important; }
             .navbar-title span { display: none; } 
             
-            /* Normalisasi ukuran teks utama di HP */
-            .content-area h1 { font-size: 18px !important; margin-bottom: 4px; }
-            .content-area p { font-size: 11.5px !important; }
+            /* Sembunyikan detail nama/divisi di navbar atas HP agar tidak penuh, ganti dengan avatar & tombol logout */
+            .user-meta { display: none; }
             
             /* Ubah seluruh grid kartu statistik & form menjadi 1 kolom ke bawah secara rapi */
             .content-area div[style*="grid"], .content-area .grid, form .grid, .form-grid, .row {
@@ -192,6 +196,14 @@
                 </div>
             </div>
             <div class="user-profile">
+                <!-- Tombol Logout Cepat khusus Tampilan Mobile -->
+                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="mobile-logout-btn" title="Keluar Sistem">
+                        🚪
+                    </button>
+                </form>
+
                 <div class="user-avatar">
                     {{ substr(Auth::user()->nama ?? Auth::user()->name ?? 'A', 0, 1) }}
                 </div>
