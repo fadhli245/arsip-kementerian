@@ -25,7 +25,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
         /* Sidebar Styling (Terang, Bersih, Profesional) */
-        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--sidebar-border); box-shadow: 2px 0 10px rgba(0,0,0,0.01); }
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--sidebar-border); box-shadow: 2px 0 10px rgba(0,0,0,0.01); transition: transform 0.3s ease; z-index: 100; }
         .sidebar-brand { padding: 25px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); }
         .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #0284C7, #0369A1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(2,132,199,0.25); }
         .brand-text h1 { color: #0F172A; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
@@ -43,24 +43,47 @@
         .btn-logout:hover { background: #DC2626; color: #FFFFFF; }
 
         /* Main Content Wrapper */
-        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; width: 100%; }
         
         /* Top Navbar */
-        .top-navbar { height: 70px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); z-index: 10; }
+        .top-navbar { height: 70px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); z-index: 10; gap: 15px; }
+        .navbar-left { display: flex; align-items: center; gap: 15px; }
         .navbar-title { font-size: 13.5px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        
+        /* Hamburger Menu Button */
+        .hamburger-btn { display: none; background: #F1F5F9; color: var(--primary-color); border: 1px solid var(--border-color); width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; }
+        .hamburger-btn:hover { background: #E0F2FE; }
+
         .user-profile { display: flex; align-items: center; gap: 12px; }
         .user-avatar { width: 36px; height: 36px; background: #E0F2FE; color: #0369A1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; border: 2px solid #BAE6FD; }
-        .user-meta h4 { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
-        .user-meta p { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .user-meta h4 { font-size: 13.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; }
+        .user-meta p { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; white-space: nowrap; }
 
         /* Content Area */
         .content-area { flex: 1; overflow-y: auto; padding: 30px; }
+
+        /* Backdrop untuk HP saat sidebar terbuka */
+        .sidebar-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 90; backdrop-filter: blur(2px); }
+
+        /* RESPONSIVE MEDIA QUERIES UNTUK HP & TABLET */
+        @media (max-width: 992px) {
+            .sidebar { position: fixed; top: 0; left: -280px; height: 100vh; transition: left 0.3s ease; }
+            .sidebar.show { left: 0; }
+            .sidebar-backdrop.show { display: block; }
+            .hamburger-btn { display: flex; }
+            .top-navbar { padding: 0 15px; }
+            .content-area { padding: 15px; }
+            .navbar-title span { display: none; } /* Menyembunyikan teks panjang di layar kecil agar muat */
+        }
     </style>
 </head>
 <body>
 
+    <!-- Backdrop khusus mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <!-- Sidebar Terang & Bersih -->
-    <div class="sidebar">
+    <div class="sidebar" id="appSidebar">
         <div class="sidebar-brand">
             <div class="brand-icon">⚓</div>
             <div class="brand-text">
@@ -113,8 +136,14 @@
     <div class="main-wrapper">
         <!-- Top Navbar -->
         <div class="top-navbar">
-            <div class="navbar-title">
-                <span>📍 Direktorat Jenderal Perhubungan Laut</span>
+            <div class="navbar-left">
+                <!-- Tombol Hamburger untuk memunculkan sidebar di HP -->
+                <button class="hamburger-btn" id="sidebarToggle" title="Menu Navigasi">
+                    ☰
+                </button>
+                <div class="navbar-title">
+                    <span>📍 Direktorat Jenderal Perhubungan Laut</span>
+                </div>
             </div>
             <div class="user-profile">
                 <div class="user-avatar">
@@ -133,5 +162,24 @@
         </div>
     </div>
 
+    <!-- Skrip Interaktif untuk Sidebar Mobile -->
+    <script>
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const appSidebar = document.getElementById('appSidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleSidebar() {
+            appSidebar.classList.toggle('show');
+            sidebarBackdrop.classList.toggle('show');
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', toggleSidebar);
+        }
+    </script>
 </body>
 </html>
