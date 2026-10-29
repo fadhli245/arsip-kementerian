@@ -198,11 +198,11 @@
             <div class="user-profile">
                 <!-- Tombol Logout Cepat khusus Tampilan Mobile -->
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                    @csrf
-                    <button type="submit" class="mobile-logout-btn" title="Keluar Sistem">
-                        🚪
-                    </button>
-                </form>
+    @csrf
+    <button type="submit" class="mobile-logout-btn" title="Keluar Sistem">
+        🚪
+    </button>
+</form>
 
                 <div class="user-avatar">
                     {{ substr(Auth::user()->nama ?? Auth::user()->name ?? 'A', 0, 1) }}
