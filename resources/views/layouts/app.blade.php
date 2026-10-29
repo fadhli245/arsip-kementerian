@@ -71,9 +71,31 @@
             .sidebar.show { left: 0; }
             .sidebar-backdrop.show { display: block; }
             .hamburger-btn { display: flex; }
-            .top-navbar { padding: 0 15px; }
-            .content-area { padding: 15px; }
-            .navbar-title span { display: none; } /* Menyembunyikan teks panjang di layar kecil agar muat */
+            .top-navbar { padding: 0 15px; height: 60px; }
+            .content-area { padding: 12px !important; }
+            .navbar-title span { display: none; } 
+            
+            /* Normalisasi ukuran teks, kartu, dan form agar pas di HP */
+            .content-area h1 { font-size: 18px !important; }
+            .content-area p { font-size: 12px !important; }
+            
+            /* Ubah form grid 2 kolom menjadi 1 kolom penuh ke bawah di HP */
+            form .grid, .form-grid, .row {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            input, select, textarea, .form-control {
+                font-size: 13px !important;
+                padding: 8px 10px !important;
+            }
+
+            /* Tombol agar proporsional */
+            .btn, button {
+                font-size: 13px !important;
+                padding: 8px 12px !important;
+            }
         }
     </style>
 </head>
