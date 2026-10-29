@@ -65,7 +65,9 @@
         /* Backdrop untuk HP saat sidebar terbuka */
         .sidebar-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 90; backdrop-filter: blur(2px); }
 
-        /* RESPONSIVE MEDIA QUERIES UNTUK HP & TABLET */
+        /* ========================================================
+           RESPONSIVE MEDIA QUERIES SUPER RAPI UNTUK HP & TABLET
+           ======================================================== */
         @media (max-width: 992px) {
             .sidebar { position: fixed; top: 0; left: -280px; height: 100vh; transition: left 0.3s ease; }
             .sidebar.show { left: 0; }
@@ -75,26 +77,48 @@
             .content-area { padding: 12px !important; }
             .navbar-title span { display: none; } 
             
-            /* Normalisasi ukuran teks, kartu, dan form agar pas di HP */
-            .content-area h1 { font-size: 18px !important; }
-            .content-area p { font-size: 12px !important; }
+            /* Normalisasi ukuran teks utama di HP */
+            .content-area h1 { font-size: 18px !important; margin-bottom: 4px; }
+            .content-area p { font-size: 11.5px !important; }
             
-            /* Ubah form grid 2 kolom menjadi 1 kolom penuh ke bawah di HP */
-            form .grid, .form-grid, .row {
+            /* Ubah seluruh grid kartu statistik & form menjadi 1 kolom ke bawah secara rapi */
+            .content-area div[style*="grid"], .content-area .grid, form .grid, .form-grid, .row {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 10px !important;
+                gap: 12px !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
             }
 
+            /* Normalisasi kartu statistik & card container agar pas di layar HP */
+            .content-area > div, .card, .stat-card {
+                width: 100% !important;
+                padding: 14px !important;
+                margin-bottom: 10px !important;
+                border-radius: 10px !important;
+            }
+
+            /* Ukuran angka statistik di dalam kartu */
+            .stat-number, .number, h2, h3 {
+                font-size: 22px !important;
+            }
+
+            /* Input, Select, Textarea, Form Control */
             input, select, textarea, .form-control {
                 font-size: 13px !important;
-                padding: 8px 10px !important;
+                padding: 9px 12px !important;
+                width: 100% !important;
             }
 
-            /* Tombol agar proporsional */
-            .btn, button {
+            /* Tombol aksi & kembali agar proporsional dan tidak meluber */
+            .btn, button, a.btn, .btn-kembali {
+                width: 100% !important;
                 font-size: 13px !important;
-                padding: 8px 12px !important;
+                padding: 10px 14px !important;
+                justify-content: center !important;
+                text-align: center !important;
+                display: flex !important;
             }
         }
     </style>
