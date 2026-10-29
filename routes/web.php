@@ -25,7 +25,7 @@ Route::get('/', function () {
 
 // Pindahkan rute proses login ke luar agar bisa diakses umum
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.proses');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 
 /*
