@@ -33,35 +33,49 @@ class ArsipController extends Controller
     }
 
     public function create()
-    {
-        return view('admin.arsip.create');
-    }
+{
+    // BENAR:
+    return view('admin.arsip.create'); 
+    
+    // SALAH (Ini akan memanggil tampilan form lama yang berantakan!):
+    // return view('arsip.create'); 
+}
 
     public function store(Request $request)
 {
-    // 1. Validasi input sesuai form Blade
+    // 1. Validasi input form
     $request->validate([
-        'file_arsip'       => 'required|mimes:pdf|max:51200', // Hanya PDF, Maks 50MB
-        'judul'            => 'required|string|max:255',
-        'kategori'         => 'required|string',
-        'tanggal_dokumen'  => 'required|date',
-        'keterangan'       => 'nullable|string',
+        'judul' => 'required|string|max:255',
+        'kategori' => 'required|string',
+        'tanggal_dokumen' => 'required|date',
+        'file_arsip' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120', // Maksimal 5MB
     ]);
 
-    // 2. Simpan file PDF ke folder storage/app/public/dokumen_arsip
-    $filePath = $request->file('file_arsip')->store('dokumen_arsip', 'public');
+    // 2. Logika memproses file upload
+    if ($request->hasFile('file_arsip')) {
+        $file = $request->file('file_arsip');
+        
+        // Buat nama file unik agar tidak bentrok (Contoh: 1700123456_SK_Mutasi.pdf)
+        $namaFile = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+        
+        // Simpan file ke folder storage sementara (akan kita sesuaikan untuk Vercel nanti)
+        $path = $file->storeAs('dokumen_arsip', $namaFile, 'public');
 
-    // 3. Simpan record ke database
-    Arsip::create([
-        'judul'           => $request->judul,
-        'kategori'        => $request->kategori,
-        'tanggal_dokumen' => $request->tanggal_dokumen,
-        'keterangan'      => $request->keterangan,
-        'file_path'       => $filePath,
-        'user_id'         => Auth::id(),
-    ]);
+        // 3. Simpan data teks dan nama file ke Database PostgreSQL (Supabase)
+        Arsip::create([
+            'user_id' => auth()->id(), // Tambahkan baris ini untuk menyimpan ID admin yang login
+            'judul' => $request->judul,
+            'nomor_surat' => $request->nomor_surat,
+            'kategori' => $request->kategori,
+            'tanggal_dokumen' => $request->tanggal_dokumen,
+            'keterangan' => $request->keterangan,
+            'file_path' => $path, // Menyimpan lokasi/nama file di database
+        ]);
 
-    return redirect()->route('admin.arsip.index')->with('success', 'Arsip berhasil disimpan!');
+        return redirect()->route('admin.arsip.index')->with('success', 'Arsip dan file berhasil diunggah!');
+    }
+
+    return back()->with('error', 'File dokumen wajib diunggah!');
 }
 
     // 4. Fungsi khusus untuk mengunduh file
@@ -167,5 +181,14 @@ class ArsipController extends Controller
         
         fclose($handle);
         exit;
+    }
+
+    public function show($id)
+    {
+        // Cari data arsip berdasarkan ID, jika tidak ketemu munculkan 404
+        $arsip = Arsip::findOrFail($id);
+        
+        // Tampilkan halaman detail dan kirimkan data arsip tersebut
+        return view('admin.arsip.show', compact('arsip'));
     }
 }

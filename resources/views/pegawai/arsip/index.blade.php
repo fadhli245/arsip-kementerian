@@ -141,7 +141,9 @@
 
             <div class="card-bottom">
                 <span style="font-size: 11px; color: var(--green); font-weight: 700;">● Berkas Siap</span>
-                <a href="{{ route('pegawai.arsip.download', $arsip->id) }}" class="btn-download-pdf">Unduh PDF</a>
+                <a href="{{ route('pegawai.arsip.download', $arsip->id) }}" style="background-color: #0A2558; color: #FFFFFF; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+    📥 Unduh PDF
+</a>
             </div>
         </div>
     @empty

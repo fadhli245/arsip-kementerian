@@ -76,7 +76,7 @@ Route::middleware(['auth', 'role:user,pegawai'])->group(function () {
 
     // Pencarian & Unduh Arsip Pegawai
     Route::get('/pegawai/arsip', [PegawaiArsipController::class, 'index'])->name('pegawai.arsip.index');
-    Route::get('/pegawai/arsip/{id}/download', [PegawaiArsipController::class, 'download'])->name('pegawai.arsip.download');
+    Route::get('/pegawai/arsip/{id}/download', [App\Http\Controllers\Pegawai\ArsipController::class, 'download'])->name('pegawai.arsip.download');
 
     // Pastikan ini ada di dalam grup route admin kamu
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -88,5 +88,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // (index, create, store, show, edit, update, destroy)
     Route::resource('arsip', \App\Http\Controllers\Admin\ArsipController::class);
     
+    Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
+    Route::get('/arsip', [App\Http\Controllers\Pegawai\ArsipController::class, 'index'])->name('arsip.index');
+    Route::get('/arsip/{id}/download', [App\Http\Controllers\Pegawai\ArsipController::class, 'download'])->name('arsip.download');
+});
 });
 });

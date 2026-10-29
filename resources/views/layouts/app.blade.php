@@ -69,22 +69,34 @@
             </div>
         </div>
 
-        <div class="sidebar-menu">
-            <div class="menu-label">Menu Utama</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <span class="icon">📊</span> Dasbor Admin
-            </a>
-            <a href="{{ route('admin.arsip.index') }}" class="nav-link {{ request()->routeIs('admin.arsip.*') ? 'active' : '' }}">
-                <span class="icon">📁</span> Kelola Arsip
-            </a>
-            <a href="{{ route('admin.aktivitas') }}" class="nav-link {{ request()->routeIs('admin.aktivitas') ? 'active' : '' }}">
-                <span class="icon">🕒</span> Riwayat Aktivitas
-            </a>
+       <div class="sidebar-menu">
+            @if(auth()->check() && auth()->user()->role === 'admin')
+                <!-- ================= MENU KHUSUS ADMIN ================= -->
+                <div class="menu-label">Menu Utama</div>
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <span class="icon">📊</span> Dasbor Admin
+                </a>
+                <a href="{{ route('admin.arsip.index') }}" class="nav-link {{ request()->routeIs('admin.arsip.*') ? 'active' : '' }}">
+                    <span class="icon">📁</span> Kelola Arsip
+                </a>
+                <a href="{{ route('admin.aktivitas') }}" class="nav-link {{ request()->routeIs('admin.aktivitas') ? 'active' : '' }}">
+                    <span class="icon">🕒</span> Riwayat Aktivitas
+                </a>
 
-            <div class="menu-label">Sistem</div>
-            <a href="{{ route('admin.users.index') ?? '#' }}" class="nav-link">
-                <span class="icon">👥</span> Manajemen Pengguna
-            </a>
+                <div class="menu-label">Sistem</div>
+                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <span class="icon">👥</span> Manajemen Pengguna
+                </a>
+            @else
+                <!-- ================= MENU KHUSUS PEGAWAI / USER ================= -->
+                <div class="menu-label">Portal Pegawai</div>
+                <a href="{{ route('pegawai.dashboard') }}" class="nav-link {{ request()->routeIs('pegawai.dashboard') ? 'active' : '' }}">
+                    <span class="icon">📊</span> Dasbor Pegawai
+                </a>
+                <a href="{{ route('pegawai.arsip.index') }}" class="nav-link {{ request()->routeIs('pegawai.arsip.*') ? 'active' : '' }}">
+                    <span class="icon">🔍</span> Cari & Unduh Arsip
+                </a>
+            @endif
         </div>
 
         <div class="sidebar-footer">
