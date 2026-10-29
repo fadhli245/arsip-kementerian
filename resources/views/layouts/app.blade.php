@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIM Arsip Kementerian Perhubungan Laut</title>
-    <!-- Kode untuk memanggil logo kecil di tab browser (Favicon) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #F4F7FE;          /* Abu-abu kebiruan sangat soft dan nyaman di mata */
-            --sidebar-bg: #FFFFFF;       /* Sidebar putih bersih */
-            --sidebar-border: #E2E8F0;   /* Garis tipis rapi */
-            --primary-color: #0284C7;    /* Biru profesional yang cerah dan hidup */
-            --primary-hover: #0369A1;    /* Biru lebih gelap sedikit untuk hover */
-            --text-main: #1E293B;        /* Teks gelap tajam agar mudah dibaca */
-            --text-muted: #64748B;       /* Teks sekunder abu-abu lembut */
-            --card-bg: #FFFFFF;          /* Background kartu putih */
-            --border-color: #E2E8F0;     /* Border umum */
+            --bg-body: #F4F7FE;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-border: #E2E8F0;
+            --primary-color: #0284C7;
+            --primary-hover: #0369A1;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --card-bg: #FFFFFF;
+            --border-color: #E2E8F0;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Styling (Terang, Bersih, Profesional) */
+        /* Sidebar Styling */
         .sidebar { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--sidebar-border); box-shadow: 2px 0 10px rgba(0,0,0,0.01); transition: transform 0.3s ease; z-index: 100; }
         .sidebar-brand { padding: 25px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); }
         .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #0284C7, #0369A1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(2,132,199,0.25); }
@@ -54,8 +54,8 @@
         .hamburger-btn { display: none; background: #F1F5F9; color: var(--primary-color); border: 1px solid var(--border-color); width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; }
         .hamburger-btn:hover { background: #E0F2FE; }
 
-        /* Tombol Logout Khusus Navbar Mobile */
-        .mobile-logout-btn { display: none; background: #FEF2F2; color: #DC2626; border: 1px solid #FEE2E2; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        /* Tombol Logout Cepat di Navbar Mobile */
+        .mobile-logout-btn { display: none; background: #FEF2F2; color: #DC2626; border: 1px solid #FEE2E2; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .mobile-logout-btn:hover { background: #DC2626; color: #FFFFFF; }
 
         .user-profile { display: flex; align-items: center; gap: 12px; }
@@ -69,23 +69,18 @@
         /* Backdrop untuk HP saat sidebar terbuka */
         .sidebar-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 90; backdrop-filter: blur(2px); }
 
-        /* ========================================================
-           RESPONSIVE MEDIA QUERIES SUPER RAPI UNTUK HP & TABLET
-           ======================================================== */
+        /* RESPONSIVE MEDIA QUERIES */
         @media (max-width: 992px) {
             .sidebar { position: fixed; top: 0; left: -280px; height: 100vh; transition: left 0.3s ease; }
             .sidebar.show { left: 0; }
             .sidebar-backdrop.show { display: block; }
             .hamburger-btn { display: flex; }
-            .mobile-logout-btn { display: flex; } /* Tampilkan tombol logout di navbar HP */
+            .mobile-logout-btn { display: flex; }
             .top-navbar { padding: 0 15px; height: 60px; }
             .content-area { padding: 12px !important; }
             .navbar-title span { display: none; } 
-            
-            /* Sembunyikan detail nama/divisi di navbar atas HP agar tidak penuh, ganti dengan avatar & tombol logout */
             .user-meta { display: none; }
             
-            /* Ubah seluruh grid kartu statistik & form menjadi 1 kolom ke bawah secara rapi */
             .content-area div[style*="grid"], .content-area .grid, form .grid, .form-grid, .row {
                 display: flex !important;
                 flex-direction: column !important;
@@ -95,7 +90,6 @@
                 margin-right: 0 !important;
             }
 
-            /* Normalisasi kartu statistik & card container agar pas di layar HP */
             .content-area > div, .card, .stat-card {
                 width: 100% !important;
                 padding: 14px !important;
@@ -103,19 +97,14 @@
                 border-radius: 10px !important;
             }
 
-            /* Ukuran angka statistik di dalam kartu */
-            .stat-number, .number, h2, h3 {
-                font-size: 22px !important;
-            }
+            .stat-number, .number, h2, h3 { font-size: 22px !important; }
 
-            /* Input, Select, Textarea, Form Control */
             input, select, textarea, .form-control {
                 font-size: 13px !important;
                 padding: 9px 12px !important;
                 width: 100% !important;
             }
 
-            /* Tombol aksi & kembali agar proporsional dan tidak meluber */
             .btn, button, a.btn, .btn-kembali {
                 width: 100% !important;
                 font-size: 13px !important;
@@ -132,7 +121,7 @@
     <!-- Backdrop khusus mobile -->
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <!-- Sidebar Terang & Bersih -->
+    <!-- Sidebar -->
     <div class="sidebar" id="appSidebar">
         <div class="sidebar-brand">
             <div class="brand-icon">⚓</div>
@@ -144,7 +133,6 @@
 
        <div class="sidebar-menu">
             @if(auth()->check() && auth()->user()->role === 'admin')
-                <!-- ================= MENU KHUSUS ADMIN ================= -->
                 <div class="menu-label">Menu Utama</div>
                 <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <span class="icon">📊</span> Dasbor Admin
@@ -161,7 +149,6 @@
                     <span class="icon">👥</span> Manajemen Pengguna
                 </a>
             @else
-                <!-- ================= MENU KHUSUS PEGAWAI / USER ================= -->
                 <div class="menu-label">Portal Pegawai</div>
                 <a href="{{ route('pegawai.dashboard') }}" class="nav-link {{ request()->routeIs('pegawai.dashboard') ? 'active' : '' }}">
                     <span class="icon">📊</span> Dasbor Pegawai
@@ -175,9 +162,9 @@
         <div class="sidebar-footer">
             <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                 @csrf
-               <a href="{{ route('logout') }}" class="btn-logout" style="text-decoration: none;">
-    <span>🚪</span> Keluar Sistem
-</a>
+                <button type="submit" class="btn-logout">
+                    <span>🚪</span> Keluar Sistem
+                </button>
             </form>
         </div>
     </div>
@@ -187,7 +174,6 @@
         <!-- Top Navbar -->
         <div class="top-navbar">
             <div class="navbar-left">
-                <!-- Tombol Hamburger untuk memunculkan sidebar di HP -->
                 <button class="hamburger-btn" id="sidebarToggle" title="Menu Navigasi">
                     ☰
                 </button>
@@ -196,12 +182,12 @@
                 </div>
             </div>
             <div class="user-profile">
-                <!-- Tombol Logout Cepat khusus Tampilan Mobile menggunakan link pemicu form aman -->
-                <a href="{{ route('logout') }}" class="mobile-logout-btn" title="Keluar Sistem">
-    🚪
-</a>
-                <form id="mobile-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <!-- Tombol Logout Cepat khusus Tampilan Mobile (Menggunakan Form POST yang aman) -->
+                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                     @csrf
+                    <button type="submit" class="mobile-logout-btn" title="Keluar Sistem">
+                        🚪
+                    </button>
                 </form>
 
                 <div class="user-avatar">
