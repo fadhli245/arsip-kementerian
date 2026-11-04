@@ -44,7 +44,8 @@
                 <th>NAMA LENGKAP</th>
                 <th>EMAIL</th>
                 <th>ROLE / HAK AKSES</th>
-                <th>TERDAFTAR</th>
+                <th>DIVISI</th>
+                <th>STATUS</th>
                 <th>AKSI</th>
             </tr>
         </thead>
@@ -54,27 +55,25 @@
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $user->name ?? $user->nama }}</strong></td>
                     <td>{{ $user->email }}</td>
+                    <td><span class="badge-role {{ in_array($user->role, ['admin', 'super_admin', 'admin_divisi'], true) ? 'badge-admin' : 'badge-pegawai' }}">{{ str_replace('_', ' ', $user->role) }}</span></td>
+                    <td>{{ $user->division ?: '—' }}</td>
+                    <td><span style="font-size:11px;font-weight:700;color:{{ $user->is_active ? '#15803D' : '#B91C1C' }}">{{ $user->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
                     <td>
-                        <span class="badge-role {{ $user->role === 'admin' ? 'badge-admin' : 'badge-pegawai' }}">
-                            {{ $user->role }}
-                        </span>
-                    </td>
-                    <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                    <td>
-                        @if($user->id !== auth()->id())
-                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus akun ini?')">
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <a href="{{ route('admin.users.edit', $user) }}" style="color:#0369A1;font-size:12px;font-weight:700;text-decoration:none">Edit</a>
+                            @if($user->id !== auth()->id())
+                            <form action="{{ route('admin.users.status', $user) }}" method="POST" onsubmit="return confirm('Ubah status akun pengguna ini?')">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Hapus</button>
+                                @method('PATCH')
+                                <button type="submit" style="background:{{ $user->is_active ? '#FEF2F2' : '#F0FDF4' }};color:{{ $user->is_active ? '#B91C1C' : '#15803D' }};border:0;padding:6px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
                             </form>
-                        @else
-                            <span style="color: var(--muted); font-size: 12px; font-style: italic;">Akun Anda</span>
-                        @endif
+                            @endif
+                        </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">Belum ada data pengguna.</td>
+                    <td colspan="7" style="text-align: center; color: var(--muted); padding: 30px;">Belum ada data pengguna.</td>
                 </tr>
             @endforelse
         </tbody>

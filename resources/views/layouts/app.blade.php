@@ -132,22 +132,22 @@
         </div>
 
        <div class="sidebar-menu">
-            @if(auth()->check() && auth()->user()->role === 'admin')
+            @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'super_admin', 'admin_divisi', 'verifikator'], true))
                 <div class="menu-label">Menu Utama</div>
-                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <span class="icon">📊</span> Dasbor Admin
-                </a>
-                <a href="{{ route('admin.arsip.index') }}" class="nav-link {{ request()->routeIs('admin.arsip.*') ? 'active' : '' }}">
-                    <span class="icon">📁</span> Kelola Arsip
-                </a>
-                <a href="{{ route('admin.aktivitas') }}" class="nav-link {{ request()->routeIs('admin.aktivitas') ? 'active' : '' }}">
-                    <span class="icon">🕒</span> Riwayat Aktivitas
+                @if(in_array(auth()->user()->role, ['admin', 'super_admin', 'admin_divisi'], true))
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><span class="icon">📊</span> Dasbor Admin</a>
+                    <a href="{{ route('admin.arsip.index') }}" class="nav-link {{ request()->routeIs('admin.arsip.*') ? 'active' : '' }}"><span class="icon">📁</span> Kelola Arsip</a>
+                    <a href="{{ route('admin.aktivitas') }}" class="nav-link {{ request()->routeIs('admin.aktivitas') ? 'active' : '' }}"><span class="icon">🕒</span> Riwayat Aktivitas</a>
+                @endif
+                <a href="{{ route('admin.permohonan.index') }}" class="nav-link {{ request()->routeIs('admin.permohonan.*') ? 'active' : '' }}">
+                    <span class="icon">✅</span> Persetujuan Arsip
                 </a>
 
-                <div class="menu-label">Sistem</div>
-                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <span class="icon">👥</span> Manajemen Pengguna
-                </a>
+                @if(in_array(auth()->user()->role, ['admin', 'super_admin'], true))
+                    <div class="menu-label">Sistem</div>
+                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><span class="icon">👥</span> Manajemen Pengguna</a>
+                    <a href="{{ route('admin.kategori.index') }}" class="nav-link {{ request()->routeIs('admin.kategori.*') ? 'active' : '' }}"><span class="icon">🏷️</span> Kategori & Klasifikasi</a>
+                @endif
             @else
                 <div class="menu-label">Portal Pegawai</div>
                 <a href="{{ route('pegawai.dashboard') }}" class="nav-link {{ request()->routeIs('pegawai.dashboard') ? 'active' : '' }}">
@@ -202,6 +202,21 @@
 
         <!-- Main Content -->
         <div class="content-area">
+            @if (session('success'))
+                <div role="status" style="margin-bottom: 18px; padding: 12px 16px; color: #166534; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px;">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div role="alert" style="margin-bottom: 18px; padding: 12px 16px; color: #991B1B; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">{{ session('error') }}</div>
+            @endif
+            @if ($errors->any())
+                <div role="alert" style="margin-bottom: 18px; padding: 12px 16px; color: #991B1B; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             @yield('content')
         </div>
     </div>

@@ -15,6 +15,11 @@ class RoleMiddleware
             return redirect('/');
         }
 
+        if (!Auth::user()->is_active) {
+            Auth::logout();
+            abort(403, 'Akun Anda sedang dinonaktifkan. Hubungi administrator.');
+        }
+
         // 2. Ambil role user, ubah ke huruf kecil dan bersihkan spasi
         $userRole = strtolower(trim(Auth::user()->role ?? ''));
 
@@ -24,12 +29,7 @@ class RoleMiddleware
         }, $roles);
 
         // 4. Jika role user cocok dengan salah satu role yang diizinkan (atau mengandung kata 'admin')
-        if (in_array($userRole, $allowedRoles) || ($userRole === 'admin' && in_array('admin', $allowedRoles))) {
-            return $next($request);
-        }
-
-        // Khusus untuk user yang rolenya admin, berikan kelonggaran akses ke semua rute admin
-        if ($userRole === 'admin') {
+        if (in_array($userRole, $allowedRoles, true)) {
             return $next($request);
         }
 

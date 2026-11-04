@@ -111,10 +111,9 @@
         <div class="form-select-wrap">
             <select name="kategori" class="form-control-custom">
                 <option value="">Semua Kategori</option>
-                <option value="Surat Masuk" {{ request('kategori') == 'Surat Masuk' ? 'selected' : '' }}>Surat Masuk</option>
-                <option value="Surat Keluar" {{ request('kategori') == 'Surat Keluar' ? 'selected' : '' }}>Surat Keluar</option>
-                <option value="Surat Keputusan (SK)" {{ request('kategori') == 'Surat Keputusan (SK)' ? 'selected' : '' }}>Surat Keputusan (SK)</option>
-                <option value="Laporan Kegiatan" {{ request('kategori') == 'Laporan Kegiatan' ? 'selected' : '' }}>Laporan Kegiatan</option>
+                @foreach($kategoriList as $kategori)
+                    <option value="{{ $kategori }}" {{ request('kategori') === $kategori ? 'selected' : '' }}>{{ $kategori }}</option>
+                @endforeach
             </select>
         </div>
 
@@ -133,7 +132,7 @@
                 <span class="badge {{ $arsip->kategori == 'Surat Masuk' ? 'badge-surat' : ($arsip->kategori == 'Surat Keputusan (SK)' ? 'badge-sk' : 'badge-laporan') }}">
                     {{ $arsip->kategori }}
                 </span>
-                <div class="doc-number">📄 {{ $arsip->nomor_dokumen }}</div>
+                <div class="doc-number">📄 {{ $arsip->nomor_surat ?: 'Nomor surat tidak tersedia' }}</div>
                 <div class="doc-title">{{ $arsip->judul }}</div>
                 <div class="doc-desc">{{ Str::limit($arsip->keterangan ?? 'Tidak ada ringkasan keterangan.', 90) }}</div>
                 <div class="doc-date">📅 {{ \Carbon\Carbon::parse($arsip->tanggal_dokumen)->format('d F Y') }}</div>

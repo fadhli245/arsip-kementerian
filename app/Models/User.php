@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'division',
+        'is_active',
     ];
 
     /**
@@ -40,6 +43,13 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'is_active' => 'boolean',
         'password' => 'hashed',
     ];
+
+    public function arsips()
+    {
+        return $this->hasMany(Arsip::class);
+    }
 }

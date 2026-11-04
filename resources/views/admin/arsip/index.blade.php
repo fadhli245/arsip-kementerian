@@ -48,10 +48,9 @@
         
         <select name="kategori" class="filter-select">
             <option value="">-- Semua Kategori --</option>
-            <option value="Surat Masuk" {{ (isset($kategori) && $kategori == 'Surat Masuk') ? 'selected' : '' }}>Surat Masuk</option>
-            <option value="Surat Keluar" {{ (isset($kategori) && $kategori == 'Surat Keluar') ? 'selected' : '' }}>Surat Keluar</option>
-            <option value="Surat Keputusan (SK)" {{ (isset($kategori) && $kategori == 'Surat Keputusan (SK)') ? 'selected' : '' }}>Surat Keputusan (SK)</option>
-            <option value="Laporan Kegiatan" {{ (isset($kategori) && $kategori == 'Laporan Kegiatan') ? 'selected' : '' }}>Laporan Kegiatan</option>
+            @foreach($categories as $category)
+                <option value="{{ $category->name }}" {{ ($kategori ?? '') === $category->name ? 'selected' : '' }}>{{ $category->name }}</option>
+            @endforeach
         </select>
 
         <button type="submit" class="btn-search">Cari & Filter</button>
@@ -69,6 +68,9 @@
                 <th>NO</th>
                 <th>JUDUL ARSIP</th>
                 <th>KATEGORI</th>
+                <th>KERAHASIAAN</th>
+                <th>PUBLIKASI</th>
+                <th>STATUS</th>
                 <th>TANGGAL DOKUMEN</th>
                 <th>PENGUNGGAH</th>
                 <th>AKSI</th>
@@ -80,6 +82,9 @@
                     <td>{{ $index + 1 }}</td>
                     <td><strong>{{ $arsip->judul }}</strong></td>
                     <td><span class="badge-kategori">{{ $arsip->kategori }}</span></td>
+                    <td>{{ $arsip->classification }}</td>
+                    <td>{{ $arsip->approval_status }}</td>
+                    <td style="color:{{ $arsip->is_active ? '#15803D' : '#B91C1C' }};font-weight:700">{{ $arsip->is_active ? 'Aktif' : 'Nonaktif' }}</td>
                     <td>{{ \Carbon\Carbon::parse($arsip->tanggal_dokumen)->format('d/m/Y') }}</td>
                     <td>{{ $arsip->user->nama ?? $arsip->user->name ?? 'Admin' }}</td>
                     <td>
@@ -96,7 +101,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">Tidak ada data arsip yang ditemukan.</td>
+                    <td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Tidak ada data arsip yang ditemukan.</td>
                 </tr>
             @endforelse
         </tbody>

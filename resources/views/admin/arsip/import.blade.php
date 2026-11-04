@@ -44,10 +44,9 @@
                     <td><input type="text" name="judul[]" class="form-control" placeholder="Judul dokumen..." required></td>
                     <td>
                         <select name="kategori[]" class="form-control" required>
-                            <option value="Surat Masuk">Surat Masuk</option>
-                            <option value="Surat Keluar">Surat Keluar</option>
-                            <option value="Surat Keputusan (SK)">Surat Keputusan (SK)</option>
-                            <option value="Laporan Kegiatan">Laporan Kegiatan</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category }}">{{ $category }}</option>
+                            @endforeach
                         </select>
                     </td>
                     <td><input type="date" name="tanggal_dokumen[]" class="form-control" required></td>
@@ -72,20 +71,24 @@
         let newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td><input type="text" name="judul[]" class="form-control" placeholder="Judul dokumen..." required></td>
-            <td>
-                <select name="kategori[]" class="form-control" required>
-                    <option value="Surat Masuk">Surat Masuk</option>
-                    <option value="Surat Keluar">Surat Keluar</option>
-                    <option value="Surat Keputusan (SK)">Surat Keputusan (SK)</option>
-                    <option value="Laporan Kegiatan">Laporan Kegiatan</option>
-                </select>
-            </td>
+            <td class="category-cell"></td>
             <td><input type="date" name="tanggal_dokumen[]" class="form-control" required></td>
             <td><input type="text" name="keterangan[]" class="form-control" placeholder="Keterangan..."></td>
             <td style="text-align: center;">
                 <button type="button" class="btn-del-row" onclick="removeRow(this)">X</button>
             </td>
         `;
+        const select = document.createElement('select');
+        select.name = 'kategori[]';
+        select.className = 'form-control';
+        select.required = true;
+        @json($categories).forEach((category) => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            select.appendChild(option);
+        });
+        newRow.querySelector('.category-cell').appendChild(select);
         tbody.appendChild(newRow);
     }
 

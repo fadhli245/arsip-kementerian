@@ -13,10 +13,25 @@ class Arsip extends Model
 
     protected $fillable = [
         'judul',
+        'nomor_surat',
         'kategori',
         'tanggal_dokumen',
         'keterangan',
         'file_path',
         'user_id',
+        'classification',
+        'allowed_divisions',
+        'is_active',
+        'approval_status',
     ];
+
+    protected $casts = [
+        'allowed_divisions' => 'array',
+        'is_active' => 'boolean',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

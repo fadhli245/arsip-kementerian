@@ -6,59 +6,92 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\ArsipController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ArsipImportController;
+use App\Http\Controllers\Admin\ArchiveCategoryController;
 use App\Http\Controllers\Pegawai\ArsipController as PegawaiArsipController;
+use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 
 /*
 |--------------------------------------------------------------------------
-| 1. RUTE OTENTIKASI (LOGIN & LOGOUT) - JANGAN DI DALAM MIDDLEWARE AUTH!
+| 1. RUTE OTENTIKASI (LOGIN & LOGOUT)
 |--------------------------------------------------------------------------
 */
+// Akar aplikasi mengarahkan pengguna ke dashboard atau form login.
 Route::get('/', function () {
     if (Auth::check()) {
-        if (Auth::user()->role === 'admin') {
+        if (in_array(Auth::user()->role, ['admin', 'super_admin', 'admin_divisi'], true)) {
             return redirect()->route('admin.dashboard');
+        }
+        if (Auth::user()->role === 'verifikator') {
+            return redirect()->route('admin.permohonan.index');
+        }
+        return redirect()->route('pegawai.dashboard');
+    }
+    return view('auth.login');
+});
+
+// URL login eksplisit dipakai juga oleh middleware autentikasi Laravel.
+Route::get('/login', function () {
+    if (Auth::check()) {
+        if (in_array(Auth::user()->role, ['admin', 'super_admin', 'admin_divisi'], true)) {
+            return redirect()->route('admin.dashboard');
+        }
+        if (Auth::user()->role === 'verifikator') {
+            return redirect()->route('admin.permohonan.index');
         }
         return redirect()->route('pegawai.dashboard');
     }
     return view('auth.login');
 })->name('login');
 
-// Pindahkan rute proses login ke luar agar bisa diakses umum
+// Form dan proses login menggunakan path yang sama dengan method berbeda.
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.proses');
-Route::get('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+// Kompatibilitas untuk form login dari deployment lama.
+Route::post('/login-proses', [LoginController::class, 'authenticate']);
+
+// Rute logout menggunakan POST
+Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 
 /*
 |--------------------------------------------------------------------------
-| 2. RUTE KHUSUS ADMIN (Dashboard, Kelola Arsip, & Manajemen Pengguna)
+| 2. RUTE KHUSUS ADMIN
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin,super_admin,admin_divisi'])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard Admin
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Manajemen Arsip (CRUD)
-    Route::get('/admin/arsip', [ArsipController::class, 'index'])->name('admin.arsip.index');
-    Route::get('/admin/arsip/create', [ArsipController::class, 'create'])->name('admin.arsip.create');
-    Route::post('/admin/arsip', [ArsipController::class, 'store'])->name('admin.arsip.store');
-    Route::get('/admin/arsip/{id}/download', [ArsipController::class, 'download'])->name('admin.arsip.download');
-    Route::get('/admin/arsip/{id}/edit', [ArsipController::class, 'edit'])->name('admin.arsip.edit');
-    Route::put('/admin/arsip/{id}', [ArsipController::class, 'update'])->name('admin.arsip.update');
-    Route::delete('/admin/arsip/{id}', [ArsipController::class, 'destroy'])->name('admin.arsip.destroy');
+    // Manajemen Arsip (CRUD & Fitur Tambahan)
+    Route::get('/arsip/import', [ArsipImportController::class, 'index'])->name('arsip.import');
+    Route::post('/arsip/import', [ArsipImportController::class, 'store'])->name('arsip.import.store'); 
+    Route::get('/arsip/print', [ArsipController::class, 'print'])->name('arsip.print');
+    Route::get('/arsip/export', [ArsipController::class, 'export'])->name('arsip.export');
+    Route::get('/arsip/{id}/download', [ArsipController::class, 'download'])->name('arsip.download');
+    
+    // Resource CRUD Arsip Utama
+    Route::resource('arsip', ArsipController::class);
 
-    // Manajemen Pengguna
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
-    Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    // Manajemen Pengguna (Super Admin dan Admin)
+    Route::middleware('role:admin,super_admin')->group(function () {
+        Route::patch('/users/{user}/status', [UserController::class, 'toggleActive'])->name('users.status');
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::get('/kategori', [ArchiveCategoryController::class, 'index'])->name('kategori.index');
+        Route::post('/kategori', [ArchiveCategoryController::class, 'store'])->name('kategori.store');
+        Route::put('/kategori/{category}', [ArchiveCategoryController::class, 'update'])->name('kategori.update');
+        Route::patch('/kategori/{category}/status', [ArchiveCategoryController::class, 'toggle'])->name('kategori.status');
+    });
 
-    // Fitur Tambahan Admin (Impor, Cetak, Ekspor, Aktivitas)
-    Route::get('/admin/arsip/import', [App\Http\Controllers\Admin\ArsipImportController::class, 'index'])->name('admin.arsip.import');
-    Route::post('/admin/arsip/import', [App\Http\Controllers\Admin\ArsipImportController::class, 'store'])->name('admin.arsip.import.store'); 
-    Route::get('/admin/arsip/print', [App\Http\Controllers\Admin\ArsipController::class, 'print'])->name('admin.arsip.print');
-    Route::get('/admin/arsip/export', [App\Http\Controllers\Admin\ArsipController::class, 'export'])->name('admin.arsip.export');
-    Route::get('/admin/aktivitas', [App\Http\Controllers\Admin\DashboardController::class, 'aktivitas'])->name('admin.aktivitas');
+    // Riwayat Aktivitas
+    Route::get('/aktivitas', [DashboardController::class, 'aktivitas'])->name('aktivitas');
+
+});
+
+Route::middleware(['auth', 'role:admin,super_admin,admin_divisi,verifikator'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/permohonan', [DashboardController::class, 'permohonan'])->name('permohonan.index');
+    Route::patch('/permohonan/{archiveRequest}', [DashboardController::class, 'updatePermohonan'])->name('permohonan.update');
+    Route::patch('/dokumen/{arsip}/approval', [DashboardController::class, 'updateArchiveApproval'])->name('arsip.approval');
 });
 
 
@@ -67,30 +100,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 | 3. RUTE KHUSUS PEGAWAI / USER
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:user,pegawai'])->group(function () {
+Route::middleware(['auth', 'role:user,pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
     
     // Dashboard Pegawai
-    Route::get('/pegawai/dashboard', function () { 
-        return view('pegawai.dashboard'); 
-    })->name('pegawai.dashboard');
+    Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/permohonan-arsip', [PegawaiDashboardController::class, 'storeRequest'])->name('permohonan.store');
 
     // Pencarian & Unduh Arsip Pegawai
-    Route::get('/pegawai/arsip', [PegawaiArsipController::class, 'index'])->name('pegawai.arsip.index');
-    Route::get('/pegawai/arsip/{id}/download', [App\Http\Controllers\Pegawai\ArsipController::class, 'download'])->name('pegawai.arsip.download');
-
-    // Pastikan ini ada di dalam grup route admin kamu
-Route::prefix('admin')->name('admin.')->group(function () {
-    
-    // Rute dashboard yang sudah ada
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-    // Tambahkan baris ini untuk mendaftarkan semua rute CRUD arsip sekaligus!
-    // (index, create, store, show, edit, update, destroy)
-    Route::resource('arsip', \App\Http\Controllers\Admin\ArsipController::class);
-    
-    Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
-    Route::get('/arsip', [App\Http\Controllers\Pegawai\ArsipController::class, 'index'])->name('arsip.index');
-    Route::get('/arsip/{id}/download', [App\Http\Controllers\Pegawai\ArsipController::class, 'download'])->name('arsip.download');
-});
-});
+    Route::get('/arsip', [PegawaiArsipController::class, 'index'])->name('arsip.index');
+    Route::get('/arsip/{id}/download', [PegawaiArsipController::class, 'download'])->name('arsip.download');
+    Route::get('/arsip/{id}/preview', [PegawaiArsipController::class, 'preview'])->name('arsip.preview');
 });

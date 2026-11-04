@@ -3,51 +3,53 @@
 @section('title', 'Riwayat Aktivitas - SIM Arsip')
 
 @section('content')
-<style>
-    .page-header { margin-bottom: 25px; }
-    .page-header h2 { font-family: 'Manrope', sans-serif; color: var(--navy); font-size: 24px; margin: 0; }
-    .page-header p { color: var(--muted); margin-top: 5px; font-size: 14px; }
-    
-    .table-card { background: white; border: 1px solid #e2eaf2; border-radius: 14px; padding: 25px; box-shadow: 0 5px 20px rgba(22,49,78,.03); }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-    th { background: #f8fafc; color: var(--navy); padding: 12px; border-bottom: 2px solid #e2eaf2; font-size: 12px; letter-spacing: 0.5px; }
-    td { padding: 12px; border-bottom: 1px solid #e2eaf2; color: #334155; vertical-align: middle; }
-    .badge-aksi { background: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-</style>
+<div style="display: flex; flex-direction: column; gap: 20px;">
+    <div>
+        <h2 style="margin: 0; color: #0A2558; font-size: 24px; font-weight: 800;">Riwayat Aktivitas Pengguna</h2>
+        <p style="margin: 6px 0 0; color: #64748B;">Catatan login dan perubahan data penting yang dilakukan di sistem.</p>
+    </div>
 
-<div class="page-header">
-    <h2>🕒 Riwayat Aktivitas Sistem</h2>
-    <p>Catatan log aktivitas penambahan dan pengelolaan arsip dokumen.</p>
-</div>
+    <div style="background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(15, 23, 42, .04);">
+        <div style="padding: 18px 22px; border-bottom: 1px solid #E2E8F0; font-weight: 700; color: #0F172A;">Log Aktivitas</div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                <thead>
+                    <tr style="background: #F8FAFC; color: #475569;">
+                        <th style="padding: 13px 18px;">Pengguna</th>
+                        <th style="padding: 13px 18px;">Aktivitas</th>
+                        <th style="padding: 13px 18px;">Keterangan</th>
+                        <th style="padding: 13px 18px;">Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($logs as $log)
+                        <tr style="border-top: 1px solid #E2E8F0; color: #1E293B;">
+                            <td style="padding: 14px 18px;">
+                                <div style="font-weight: 700;">{{ $log->user->name }}</div>
+                                <div style="margin-top: 3px; color: #64748B;">{{ $log->user->email }}</div>
+                            </td>
+                            <td style="padding: 14px 18px;">
+                                <span style="display: inline-block; padding: 5px 9px; border-radius: 6px; color: #0A4B78; background: #E0F2FE; font-weight: 700;">{{ $log->activity }}</span>
+                            </td>
+                            <td style="padding: 14px 18px;">{{ $log->description }}</td>
+                            <td style="padding: 14px 18px; color: #64748B; white-space: nowrap;">
+                                {{ $log->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="padding: 40px 18px; color: #64748B; text-align: center;">Belum ada aktivitas yang tercatat.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-<div class="table-card">
-    <table>
-        <thead>
-            <tr>
-                <th>WAKTU</th>
-                <th>PENGGUNA</th>
-                <th>AKTIVITAS / KETERANGAN</th>
-                <th>KATEGORI</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($riwayats as $item)
-            <tr>
-                <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
-                <td><strong>{{ $item->user->name ?? 'Administrator' }}</strong></td>
-                <td>Menambahkan dokumen arsip: <em>{{ $item->judul }}</em></td>
-                <td><span class="badge-aksi">{{ $item->kategori }}</span></td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="4" style="text-align: center; color: var(--muted); padding: 30px;">Belum ada riwayat aktivitas tercatat.</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-    
-    <div style="margin-top: 20px;">
-        {{ $riwayats->links() }}
+        @if ($logs->hasPages())
+            <div style="padding: 16px 20px; border-top: 1px solid #E2E8F0;">
+                {{ $logs->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

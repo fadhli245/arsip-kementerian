@@ -256,34 +256,33 @@
                 @endif
 
                <form action="{{ route('login.proses') }}" method="POST">
-                    @csrf
-                    
-                    <div class="form-group">
-                        <label class="form-label">Email / Username</label>
-                        <div class="input-wrapper">
-                            <span class="input-icon">✉️</span>
-                            <input type="email" name="email" class="form-input" placeholder="Masukkan email atau username" value="{{ old('email') }}" required autofocus>
-                        </div>
-                    </div>
+    @csrf
+    
+    <div class="form-group">
+        <label class="form-label">Email / Username</label>
+        <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input type="email" name="email" class="form-input" placeholder="Masukkan email atau username" value="{{ old('email') }}" required autofocus>
+        </div>
+    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <div class="input-wrapper">
-                            <span class="input-icon">🔒</span>
-                            <input type="password" name="password" class="form-input" placeholder="Masukkan kata sandi" required>
-                        </div>
-                    </div>
+    <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" name="password" class="form-input" placeholder="Masukkan kata sandi" required>
+        </div>
+    </div>
 
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" name="remember" style="accent-color: #0284C7; width: 16px; height: 16px;"> Ingat saya
-                        </label>
-                        <a href="#" class="forgot-pass">Lupa kata sandi?</a>
-                    </div>
+    <div class="form-options">
+        <label class="remember-me">
+            <input type="checkbox" name="remember" style="accent-color: #0284C7; width: 16px; height: 16px;"> Ingat saya
+        </label>
+        <a href="#" class="forgot-pass">Lupa kata sandi?</a>
+    </div>
 
-                    <button type="submit" class="btn-login">Masuk</button>
-                </form>
-
+    <button type="submit" class="btn-login">Masuk</button>
+</form>
                 <div class="form-footer-note">
                     🔒 Hanya untuk pegawai Kementerian Perhubungan Laut
                 </div>

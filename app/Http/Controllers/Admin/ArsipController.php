@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Arsip;
+use App\Models\ArchiveCategory;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage; // Tambahkan ini untuk kelola file
 use Illuminate\Support\Facades\Auth;
@@ -12,8 +14,16 @@ class ArsipController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $kategori = $request->input('kategori');
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'kategori' => ['nullable', 'string', 'max:100'],
+        ], [
+            'search.string' => 'Kata kunci pencarian harus berupa teks.',
+            'search.max' => 'Kata kunci pencarian maksimal 100 karakter.',
+        ]);
+
+        $search = $validated['search'] ?? null;
+        $kategori = $validated['kategori'] ?? null;
 
         $query = Arsip::orderBy('tanggal_dokumen', 'desc');
 
@@ -29,13 +39,15 @@ class ArsipController extends Controller
 
         $arsips = $query->get();
 
-        return view('admin.arsip.index', compact('arsips', 'search', 'kategori'));
+        $categories = ArchiveCategory::where('is_active', true)->orderBy('name')->get();
+        return view('admin.arsip.index', compact('arsips', 'search', 'kategori', 'categories'));
     }
 
     public function create()
 {
     // BENAR:
-    return view('admin.arsip.create'); 
+        $categories = ArchiveCategory::where('is_active', true)->orderBy('name')->get();
+        return view('admin.arsip.create', compact('categories'));
     
     // SALAH (Ini akan memanggil tampilan form lama yang berantakan!):
     // return view('arsip.create'); 
@@ -44,11 +56,17 @@ class ArsipController extends Controller
     public function store(Request $request)
 {
     // 1. Validasi input form
-    $request->validate([
+    $validated = $request->validate([
         'judul' => 'required|string|max:255',
-        'kategori' => 'required|string',
+            'nomor_surat' => 'nullable|string|max:100',
+            'kategori' => ['required', 'string', 'exists:archive_categories,name,is_active,1'],
         'tanggal_dokumen' => 'required|date',
         'file_arsip' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120', // Maksimal 5MB
+        'keterangan' => 'nullable|string|max:5000',
+        'classification' => 'required|in:Publik,Internal,Terbatas,Rahasia',
+        'allowed_divisions' => 'nullable|string|max:1000',
+        'approval_status' => 'required|in:Draft,Menunggu,Disetujui,Ditolak',
+        'is_active' => 'required|boolean',
     ]);
 
     // 2. Logika memproses file upload
@@ -62,15 +80,21 @@ class ArsipController extends Controller
         $path = $file->storeAs('dokumen_arsip', $namaFile, 'public');
 
         // 3. Simpan data teks dan nama file ke Database PostgreSQL (Supabase)
-        Arsip::create([
+        $arsip = Arsip::create([
             'user_id' => auth()->id(), // Tambahkan baris ini untuk menyimpan ID admin yang login
-            'judul' => $request->judul,
-            'nomor_surat' => $request->nomor_surat,
-            'kategori' => $request->kategori,
-            'tanggal_dokumen' => $request->tanggal_dokumen,
-            'keterangan' => $request->keterangan,
+            'judul' => $validated['judul'],
+            'nomor_surat' => $validated['nomor_surat'] ?? null,
+            'kategori' => $validated['kategori'],
+            'tanggal_dokumen' => $validated['tanggal_dokumen'],
+            'keterangan' => $validated['keterangan'] ?? null,
             'file_path' => $path, // Menyimpan lokasi/nama file di database
+            'classification' => $validated['classification'],
+            'allowed_divisions' => $this->parseDivisions($validated['allowed_divisions'] ?? ''),
+            'approval_status' => $validated['approval_status'],
+            'is_active' => $validated['is_active'],
         ]);
+
+        ActivityLogger::record('Tambah Arsip', 'Menambahkan arsip: ' . $arsip->judul, $arsip);
 
         return redirect()->route('admin.arsip.index')->with('success', 'Arsip dan file berhasil diunggah!');
     }
@@ -85,6 +109,7 @@ class ArsipController extends Controller
         
         // Cek apakah filenya benar-benar ada di server
         if ($arsip->file_path && Storage::disk('public')->exists($arsip->file_path)) {
+            ActivityLogger::record('Unduh Arsip', 'Mengunduh arsip: ' . $arsip->judul, $arsip);
             return Storage::disk('public')->download($arsip->file_path);
         }
         
@@ -95,7 +120,8 @@ class ArsipController extends Controller
     public function edit($id)
     {
         $arsip = Arsip::findOrFail($id);
-        return view('admin.arsip.edit', compact('arsip'));
+        $categories = ArchiveCategory::where('is_active', true)->orWhere('name', $arsip->kategori)->orderBy('name')->get();
+        return view('admin.arsip.edit', compact('arsip', 'categories'));
     }
 
     // Memproses pembaruan data
@@ -103,10 +129,15 @@ class ArsipController extends Controller
     {
         $request->validate([
             'judul'            => 'required|string|max:255',
-            'kategori'         => 'required|string',
+            'nomor_surat'      => 'nullable|string|max:100',
+            'kategori'         => ['required', 'string', 'exists:archive_categories,name'],
             'tanggal_dokumen'  => 'required|date',
             'keterangan'       => 'nullable|string',
-            'file_arsip'       => 'nullable|mimes:pdf|max:5120', // "nullable" karena tidak wajib ganti file
+            'file_arsip'       => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'classification'  => 'required|in:Publik,Internal,Terbatas,Rahasia',
+            'allowed_divisions' => 'nullable|string|max:1000',
+            'approval_status' => 'required|in:Draft,Menunggu,Disetujui,Ditolak',
+            'is_active' => 'required|boolean',
         ]);
 
         $arsip = Arsip::findOrFail($id);
@@ -124,10 +155,17 @@ class ArsipController extends Controller
 
         // Perbarui teks data lainnya
         $arsip->judul = $request->judul;
+        $arsip->nomor_surat = $request->nomor_surat;
         $arsip->kategori = $request->kategori;
         $arsip->tanggal_dokumen = $request->tanggal_dokumen;
         $arsip->keterangan = $request->keterangan;
+        $arsip->classification = $request->classification;
+        $arsip->allowed_divisions = $this->parseDivisions($request->input('allowed_divisions', ''));
+        $arsip->approval_status = $request->approval_status;
+        $arsip->is_active = $request->boolean('is_active');
         $arsip->save();
+
+        ActivityLogger::record('Ubah Arsip', 'Memperbarui arsip: ' . $arsip->judul, $arsip);
 
         return redirect()->route('admin.arsip.index')->with('success', 'Data Arsip berhasil diperbarui!');
     }
@@ -145,6 +183,8 @@ class ArsipController extends Controller
         // Baru hapus datanya dari database
         $arsip->delete();
 
+        ActivityLogger::record('Hapus Arsip', 'Menghapus arsip: ' . $arsip->judul, $arsip);
+
         return redirect()->route('admin.arsip.index')->with('success', 'Arsip dan file PDF berhasil dihapus permanen!');
     }
     
@@ -152,6 +192,7 @@ class ArsipController extends Controller
     public function print()
     {
         $arsips = Arsip::orderBy('tanggal_dokumen', 'desc')->get();
+        ActivityLogger::record('Cetak Arsip', 'Membuka halaman cetak laporan arsip.');
         return view('admin.arsip.print', compact('arsips'));
     }
 
@@ -159,6 +200,7 @@ class ArsipController extends Controller
     public function export()
     {
         $arsips = Arsip::orderBy('tanggal_dokumen', 'desc')->get();
+        ActivityLogger::record('Ekspor Arsip', 'Mengekspor daftar arsip ke CSV.');
         $filename = "Laporan_Arsip_Kementerian_" . date('Y-m-d') . ".csv";
 
         header('Content-Type: text/csv');
@@ -190,5 +232,10 @@ class ArsipController extends Controller
         
         // Tampilkan halaman detail dan kirimkan data arsip tersebut
         return view('admin.arsip.show', compact('arsip'));
+    }
+
+    private function parseDivisions(string $divisions): array
+    {
+        return array_values(array_unique(array_filter(array_map('trim', explode(',', $divisions)))));
     }
 }

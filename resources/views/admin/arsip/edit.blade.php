@@ -40,10 +40,9 @@
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <label style="font-size: 13.5px; font-weight: 700; color: #1E293B;">Kategori Arsip <span style="color: #EF4444;">*</span></label>
                     <select name="kategori" required style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; background: #FFFFFF; cursor: pointer;">
-                        <option value="Surat Masuk" {{ old('kategori', $arsip->kategori) == 'Surat Masuk' ? 'selected' : '' }}>Surat Masuk</option>
-                        <option value="Surat Keluar" {{ old('kategori', $arsip->kategori) == 'Surat Keluar' ? 'selected' : '' }}>Surat Keluar</option>
-                        <option value="Surat Keputusan (SK)" {{ old('kategori', $arsip->kategori) == 'Surat Keputusan (SK)' ? 'selected' : '' }}>Surat Keputusan (SK)</option>
-                        <option value="Laporan Kegiatan" {{ old('kategori', $arsip->kategori) == 'Laporan Kegiatan' ? 'selected' : '' }}>Laporan Kegiatan</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->name }}" {{ old('kategori', $arsip->kategori) === $category->name ? 'selected' : '' }}>{{ $category->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -51,6 +50,29 @@
                     <input type="date" name="tanggal_dokumen" value="{{ old('tanggal_dokumen', $arsip->tanggal_dokumen) }}" required style="padding: 12px 15px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; background: #FFFFFF;">
                 </div>
             </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px">
+                <label style="display:grid;gap:7px;font-size:13px;font-weight:700;color:#1E293B">Kerahasiaan
+                    <select name="classification" required style="padding:11px;border:1px solid #CBD5E1;border-radius:8px;background:#fff">
+                        @foreach(['Publik','Internal','Terbatas','Rahasia'] as $classification)
+                            <option value="{{ $classification }}" {{ old('classification', $arsip->classification ?? 'Internal') === $classification ? 'selected' : '' }}>{{ $classification }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label style="display:grid;gap:7px;font-size:13px;font-weight:700;color:#1E293B">Status publikasi
+                    <select name="approval_status" required style="padding:11px;border:1px solid #CBD5E1;border-radius:8px;background:#fff">
+                        @foreach(['Disetujui','Draft','Menunggu','Ditolak'] as $status)
+                            <option value="{{ $status }}" {{ old('approval_status', $arsip->approval_status ?? 'Disetujui') === $status ? 'selected' : '' }}>{{ $status }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label style="display:grid;gap:7px;font-size:13px;font-weight:700;color:#1E293B">Divisi yang diizinkan
+                    <input name="allowed_divisions" value="{{ old('allowed_divisions', implode(', ', $arsip->allowed_divisions ?? [])) }}" placeholder="Contoh: Tata Usaha, Keuangan" style="padding:11px;border:1px solid #CBD5E1;border-radius:8px">
+                </label>
+            </div>
+            <p style="font-size:12px;color:#64748B;margin-top:-12px">Untuk akses Terbatas/Rahasia, masukkan nama divisi dipisahkan koma.</p>
+            <input type="hidden" name="is_active" value="0">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#1E293B"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $arsip->is_active ?? true) ? 'checked' : '' }}> Arsip aktif</label>
 
             <!-- Area Upload File -->
             <div style="display: flex; flex-direction: column; gap: 8px;">
