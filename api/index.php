@@ -22,6 +22,14 @@ $_ENV['APP_PACKAGES_CACHE'] = $tmpCache . '/packages.php';
 $_ENV['APP_CONFIG_CACHE']   = $tmpCache . '/config.php';
 $_ENV['APP_ROUTES_CACHE']   = $tmpCache . '/routes.php';
 
+// Error detail and debug traces must never be exposed from a production function.
+if (getenv('VERCEL') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL'])) {
+    putenv('APP_ENV=production');
+    putenv('APP_DEBUG=false');
+    $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'production';
+    $_ENV['APP_DEBUG'] = $_SERVER['APP_DEBUG'] = 'false';
+}
+
 // 4. Panggil file inti Laravel (Autoload & App)
 require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
