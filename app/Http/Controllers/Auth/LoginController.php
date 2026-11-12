@@ -63,7 +63,9 @@ class LoginController extends Controller
         }
 
         // Jika email/password salah, kembalikan ke halaman login dengan pesan error
-        return back()->with('error', 'Email atau password yang Anda masukkan salah!');
+        return back()
+            ->withErrors(['email' => 'Email atau password yang Anda masukkan salah, atau akun sedang tidak aktif.'])
+            ->onlyInput('email');
     }
 
     // 3. Memproses Logout

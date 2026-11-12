@@ -1,23 +1,21 @@
 <?php
 
-// 1. Buat folder penyimpanan sementara di /tmp untuk Vercel
-$storageFolders = [
-    '/tmp/storage/framework/views',
-    '/tmp/storage/framework/sessions',
-    '/tmp/storage/framework/cache',
-    '/tmp/storage/logs',
-    '/tmp/views'
-];
+// Vercel menyediakan filesystem sementara di /tmp. Laravel tetap memakai
+// storage/ untuk source, jadi arahkan file runtime ke lokasi yang bisa ditulis.
+$storagePath = '/tmp/storage';
 
-foreach ($storageFolders as $folder) {
-    if (!is_dir($folder)) {
-        mkdir($folder, 0755, true);
+foreach ([
+    $storagePath . '/framework/cache/data',
+    $storagePath . '/framework/sessions',
+    $storagePath . '/framework/views',
+    $storagePath . '/logs',
+] as $directory) {
+    if (! is_dir($directory)) {
+        mkdir($directory, 0755, true);
     }
 }
 
-// 2. Alihkan lokasi penyimpanan framework ke /tmp
-$_ENV['APP_STORAGE'] = '/tmp/storage';
-$_SERVER['APP_STORAGE'] = '/tmp/storage';
+$_ENV['LARAVEL_STORAGE_PATH'] = $storagePath;
+$_SERVER['LARAVEL_STORAGE_PATH'] = $storagePath;
 
-// 3. Jalankan entry point Laravel
 require __DIR__ . '/../public/index.php';

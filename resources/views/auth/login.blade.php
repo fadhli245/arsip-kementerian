@@ -259,10 +259,10 @@
     @csrf
     
     <div class="form-group">
-        <label class="form-label">Email / Username</label>
+        <label class="form-label">Email</label>
         <div class="input-wrapper">
             <span class="input-icon">✉️</span>
-            <input type="email" name="email" class="form-input" placeholder="Masukkan email atau username" value="{{ old('email') }}" required autofocus>
+            <input type="email" name="email" class="form-input" placeholder="Masukkan email terdaftar" value="{{ old('email') }}" required autofocus>
         </div>
     </div>
 
