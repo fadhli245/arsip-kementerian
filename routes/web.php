@@ -64,6 +64,8 @@ Route::middleware(['auth', 'role:admin,super_admin,admin_divisi'])->prefix('admi
     
     // Dashboard Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart', [DashboardController::class, 'chart'])->name('dashboard.chart');
+    Route::post('/notifikasi/baca-semua', [DashboardController::class, 'markNotificationsRead'])->name('notifications.read-all');
 
     // Manajemen Arsip (CRUD & Fitur Tambahan)
     Route::get('/arsip/import', [ArsipImportController::class, 'index'])->name('arsip.import');

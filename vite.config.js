@@ -11,6 +11,8 @@ export default defineConfig({
                 'resources/js/login.js',
                 'resources/css/pegawai-dashboard.css',
                 'resources/js/pegawai-dashboard.js',
+                'resources/css/admin-dashboard.css',
+                'resources/js/admin-dashboard.js',
             ],
             refresh: true,
         }),

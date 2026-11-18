@@ -2,153 +2,131 @@
 
 @section('title', 'Dashboard Admin - SIM Arsip Kementerian Perhubungan Laut')
 
+@push('styles')
+    @vite(['resources/css/admin-dashboard.css', 'resources/js/admin-dashboard.js'])
+@endpush
+
 @section('content')
-<style>
-    .admin-dashboard { display:flex; flex-direction:column; gap:20px; }
-    .admin-hero { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; padding:28px 32px; border-radius:16px; color:#fff; background:linear-gradient(120deg,#0A192F,#0A4C78 70%,#0284C7); box-shadow:0 10px 25px rgba(10,37,88,.12); }
-    .admin-hero small { color:#BAE6FD; text-transform:uppercase; letter-spacing:1.4px; font-weight:700; }
-    .admin-hero h1 { margin:7px 0; font-size:25px; }
-    .admin-hero p { margin:0; color:#E2E8F0; }
-    .admin-actions { display:flex; gap:9px; flex-wrap:wrap; }
-    .admin-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:10px 14px; border-radius:8px; text-decoration:none; font-weight:700; font-size:12px; }
-    .admin-btn-primary { background:#F2C94C; color:#0A2558; }
-    .admin-btn-light { color:#fff; border:1px solid rgba(255,255,255,.4); }
-    .admin-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
-    .admin-stat,.admin-panel { background:#fff; border:1px solid #E2E8F0; border-radius:13px; box-shadow:0 4px 12px rgba(15,23,42,.025); }
-    .admin-stat { padding:18px 20px; border-top:3px solid #0284C7; }
-    .admin-stat small { color:#64748B; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
-    .admin-stat strong { display:block; margin:7px 0 3px; color:#0F172A; font-size:27px; }
-    .admin-stat span { color:#64748B; font-size:11px; }
-    .admin-panel { padding:19px 20px; }
-    .admin-panel h2 { font-size:15px; margin:0 0 14px; color:#0F172A; }
-    .admin-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:16px; }
-    .admin-table-wrap { overflow:auto; }
-    .admin-table { width:100%; border-collapse:collapse; font-size:12px; }
-    .admin-table th,.admin-table td { text-align:left; padding:10px 9px; border-bottom:1px solid #E2E8F0; vertical-align:middle; }
-    .admin-table th { background:#F8FAFC; color:#475569; white-space:nowrap; }
-    .admin-table td { color:#334155; }
-    .admin-table a { color:#0369A1; font-weight:700; text-decoration:none; }
-    .admin-empty { text-align:center!important; color:#94A3B8!important; padding:22px!important; }
-    .chart { display:flex; align-items:flex-end; gap:10px; height:155px; padding:10px 2px 0; border-bottom:1px solid #CBD5E1; }
-    .chart-item { display:flex; flex:1; height:100%; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; color:#64748B; font-size:10px; }
-    .chart-bar { width:min(30px,75%); min-height:3px; background:linear-gradient(180deg,#38BDF8,#0369A1); border-radius:6px 6px 0 0; }
-    .chart-value { color:#0F172A; font-size:10px; font-weight:700; }
-    .category-row { display:grid; grid-template-columns:minmax(85px,1fr) 2fr 30px; gap:8px; align-items:center; margin:12px 0; font-size:11px; color:#475569; }
-    .category-track { background:#E2E8F0; border-radius:10px; height:8px; overflow:hidden; }
-    .category-bar { height:100%; border-radius:10px; background:#0284C7; }
-    .quick-links { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-    .quick-link { padding:13px; border:1px solid #E2E8F0; border-radius:10px; color:#0A2558; text-decoration:none; font-size:12px; font-weight:700; background:#F8FAFC; }
-    .quick-link:hover { border-color:#7DD3FC; background:#F0F9FF; }
-    .quick-link span { display:block; font-size:19px; margin-bottom:7px; }
-    .status-pill { display:inline-block; background:#FEF3C7; color:#92400E; padding:4px 8px; border-radius:20px; font-size:10px; font-weight:700; }
-    @media(max-width:900px) { .admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-grid{grid-template-columns:1fr}.quick-links{grid-template-columns:repeat(2,1fr)} }
-    @media(max-width:500px) { .admin-hero{padding:22px}.admin-stats{gap:8px}.admin-stat{padding:14px}.admin-actions{width:100%}.admin-btn{flex:1} }
-</style>
+<main class="admin-dashboard" x-data="adminDashboard()">
+    <script>
+        window.adminDashboardData = {
+            chartUrl: @js(route('admin.dashboard.chart')),
+            years: @js($daftarTahun),
+            selectedYear: @js($tahunAktif),
+            chart: @js($grafik),
+            csrf: @js(csrf_token()),
+            notificationUrl: @js(route('admin.notifications.read-all')),
+            unread: @js($notifikasiBelumDibaca),
+            storagePercent: @js($statusSistem['storage_persen']),
+        };
+    </script>
 
-<main class="admin-dashboard">
-    <section class="admin-hero">
-        <div>
-            <small>Portal Administrator</small>
-            <h1>Dashboard Pengelolaan Arsip</h1>
-            <p>Ringkasan dokumen, aktivitas pengguna, dan permohonan yang perlu ditinjau.</p>
-        </div>
-        <div class="admin-actions">
-            <a class="admin-btn admin-btn-primary" href="{{ route('admin.arsip.create') }}">＋ Tambah Arsip</a>
-            <a class="admin-btn admin-btn-light" href="{{ route('admin.permohonan.index') }}">Tinjau Permohonan</a>
-        </div>
-    </section>
-
-    <section class="admin-stats" aria-label="Ringkasan sistem">
-        <article class="admin-stat"><small>Total dokumen</small><strong>{{ number_format($totalArsip) }}</strong><span>Arsip tersimpan</span></article>
-        <article class="admin-stat" style="border-top-color:#16A34A"><small>Pengguna pegawai</small><strong>{{ number_format($totalPegawai) }}</strong><span>Akun non-admin</span></article>
-        <article class="admin-stat" style="border-top-color:#7C3AED"><small>Total akses dokumen</small><strong>{{ number_format($totalAkses) }}</strong><span>Preview dan unduhan</span></article>
-        <article class="admin-stat" style="border-top-color:#F59E0B"><small>Unduhan</small><strong>{{ number_format($totalUnduhan) }}</strong><span>Unduhan tercatat</span></article>
-    </section>
-
-    <section class="admin-panel">
-        <h2>Akses Cepat</h2>
-        <div class="quick-links">
-            <a class="quick-link" href="{{ route('admin.arsip.index') }}"><span>🗂️</span>Manajemen Arsip</a>
-            @if(in_array(auth()->user()->role, ['admin', 'super_admin'], true))
-                <a class="quick-link" href="{{ route('admin.users.index') }}"><span>👥</span>Manajemen Pengguna</a>
-            @endif
-            <a class="quick-link" href="{{ route('admin.permohonan.index') }}"><span>✅</span>Persetujuan <span class="status-pill">{{ $permohonanMenunggu }} menunggu</span></a>
-            <a class="quick-link" href="{{ route('admin.aktivitas') }}"><span>🕒</span>Audit Trail</a>
-            @if(in_array(auth()->user()->role, ['admin', 'super_admin'], true))
-                <a class="quick-link" href="{{ route('admin.kategori.index') }}"><span>🏷️</span>Master Kategori &amp; Klasifikasi</a>
-            @endif
-        </div>
-    </section>
-
-    <section class="admin-grid">
-        <article class="admin-panel">
-            <h2>Dokumen Diunggah per Bulan</h2>
-            <div class="chart" role="img" aria-label="Grafik total dokumen diunggah selama enam bulan terakhir">
-                @foreach($uploadsBulanan as $bulan)
-                    <div class="chart-item" title="{{ $bulan['label'] }}: {{ $bulan['total'] }} dokumen">
-                        <span class="chart-value">{{ $bulan['total'] }}</span>
-                        <div class="chart-bar" style="height:{{ max(3, (int) round(($bulan['total'] / $maxUpload) * 100)) }}%"></div>
-                        <span>{{ $bulan['label'] }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </article>
-        <article class="admin-panel">
-            <h2>Kategori Paling Banyak Diakses</h2>
-            @php($maxCategoryAccess = max(1, (int) ($categoryAccess->max('total') ?? 0)))
-            @forelse($categoryAccess as $category)
-                <div class="category-row">
-                    <span>{{ $category->kategori }}</span>
-                    <div class="category-track"><div class="category-bar" style="width:{{ round(($category->total / $maxCategoryAccess) * 100) }}%"></div></div>
-                    <strong>{{ $category->total }}</strong>
+    {{-- Header dashboard --}}
+    <header class="admin-dashboard-heading">
+        <div><span class="dashboard-kicker">DIREKTORAT JENDERAL PERHUBUNGAN LAUT</span><h1>Dashboard Pengelolaan Arsip</h1><p>Ringkasan arsip, permohonan, dan aktivitas sistem.</p></div>
+        <div class="admin-heading-actions">
+            <div class="admin-notification" x-data="notificationMenu()" data-unread="{{ $notifikasiBelumDibaca }}">
+                <button class="dashboard-icon-button" type="button" aria-label="Notifikasi" x-on:click="open = !open" x-bind:aria-expanded="open">
+                    <span aria-hidden="true">♧</span><span class="notification-count" x-show="unread > 0" x-cloak x-text="unread > 9 ? '9+' : unread"></span>
+                </button>
+                <div class="admin-notification-menu" x-show="open" x-transition x-cloak x-on:click.outside="open = false" x-on:keydown.escape.window="open = false">
+                    <div class="notification-menu-heading"><strong>Notifikasi</strong><span x-text="unread + ' belum dibaca'"></span></div>
+                    @forelse($daftarNotifikasi as $notification)
+                        <a class="admin-notification-item {{ $notification->read_at ? 'is-read' : '' }}" href="{{ $notification->url ?: route('admin.permohonan.index') }}">
+                            <span class="notification-dot" aria-hidden="true">{{ $notification->type === 'success' ? '✓' : '•' }}</span>
+                            <span><strong>{{ $notification->title }}</strong><small>{{ $notification->message }}</small><time>{{ $notification->created_at->locale('id')->diffForHumans() }}</time></span>
+                            @if(!$notification->read_at)<i aria-label="Belum dibaca"></i>@endif
+                        </a>
+                    @empty
+                        <p class="admin-empty-state">Tidak ada notifikasi baru.</p>
+                    @endforelse
+                    <button class="mark-read-button" type="button" x-on:click="markAllRead()" x-bind:disabled="unread === 0">Tandai semua dibaca</button>
                 </div>
-            @empty
-                <p style="color:#64748B;font-size:12px">Belum ada data preview atau unduhan untuk dihitung.</p>
-            @endforelse
-        </article>
+            </div>
+            <div class="admin-profile-chip"><span class="avatar-glass">{{ strtoupper(mb_substr(auth()->user()->name ?? 'A', 0, 1)) }}</span><span><strong>{{ auth()->user()->name ?? 'Administrator' }}</strong><small>{{ auth()->user()->division ?: 'Administrator' }}</small></span></div>
+        </div>
+    </header>
+
+    {{-- Banner utama --}}
+    <section class="admin-hero">
+        <div class="hero-copy"><span class="hero-label">PORTAL ADMINISTRATOR</span><h2>{{ $greeting }}, {{ auth()->user()->name ?? 'Administrator' }}!</h2><p>Kelola arsip dan tindak lanjuti kebutuhan layanan dalam satu tempat.</p>
+            <div class="hero-status"><span class="system-indicator {{ $statusSistem['healthy'] ? 'is-healthy' : 'is-warning' }}"></span><span>{{ $statusSistem['pesan'] }}</span><span class="hero-separator">•</span><a href="{{ route('admin.permohonan.index') }}">{{ $permohonanMenunggu }} permohonan menunggu tinjauan</a></div>
+            <small class="hero-date">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</small>
+        </div>
+        <div class="admin-actions"><a class="dashboard-button button-gold" href="{{ route('admin.arsip.create') }}">＋ Tambah Arsip</a><a class="dashboard-button button-outline" href="{{ route('admin.permohonan.index') }}">Kelola Permohonan</a></div>
     </section>
 
-    <section class="admin-grid">
-        <article class="admin-panel">
-            <h2>Aktivitas Terbaru <a style="float:right;font-size:11px" href="{{ route('admin.aktivitas') }}">Lihat semua →</a></h2>
-            <div class="admin-table-wrap"><table class="admin-table">
-                <thead><tr><th>Pengguna</th><th>Aktivitas</th><th>Waktu</th></tr></thead>
-                <tbody>
-                    @forelse($logsTerbaru as $log)
-                        <tr><td>{{ $log->user->name }}</td><td>{{ $log->activity }}<br><span style="color:#64748B">{{ \Illuminate\Support\Str::limit($log->description, 55) }}</span></td><td>{{ $log->created_at->format('d/m H:i') }}</td></tr>
-                    @empty
-                        <tr><td class="admin-empty" colspan="3">Belum ada aktivitas tercatat.</td></tr>
-                    @endforelse
-                </tbody>
-            </table></div>
-        </article>
-        <article class="admin-panel">
-            <h2>Login Terakhir</h2>
-            <div class="admin-table-wrap"><table class="admin-table">
-                <thead><tr><th>Nama</th><th>Peran</th><th>Login</th></tr></thead>
-                <tbody>
-                    @forelse($penggunaTerakhirLogin as $pengguna)
-                        <tr><td>{{ $pengguna->name }}</td><td>{{ ucfirst($pengguna->role) }}</td><td>{{ $pengguna->last_login_at?->format('d/m H:i') ?? 'Belum pernah' }}</td></tr>
-                    @empty
-                        <tr><td class="admin-empty" colspan="3">Belum ada pengguna.</td></tr>
-                    @endforelse
-                </tbody>
-            </table></div>
-        </article>
+    {{-- Statistik ringkas --}}
+    <section class="admin-stats" aria-label="Ringkasan sistem">
+        <article class="admin-stat"><span class="stat-icon icon-blue" aria-hidden="true">▣</span><span class="stat-label">Total Arsip Tersimpan</span><strong>{{ number_format($totalArsip, 0, ',', '.') }}</strong><small>{{ number_format($arsipBulanIni, 0, ',', '.') }} ditambahkan bulan ini</small></article>
+        <a class="admin-stat stat-pending {{ $permohonanMenunggu ? 'needs-action' : '' }}" href="{{ route('admin.permohonan.index') }}"><span class="stat-icon icon-amber" aria-hidden="true">◷</span><span class="stat-label">Permohonan Pending</span><strong>{{ number_format($permohonanMenunggu, 0, ',', '.') }}</strong><small>{{ $permohonanMenunggu ? 'Perlu ditinjau' : 'Semua permohonan sudah diproses' }}</small></a>
+        <article class="admin-stat"><span class="stat-icon icon-green" aria-hidden="true">♧</span><span class="stat-label">Pengguna Aktif</span><strong>{{ number_format($totalPenggunaAktif, 0, ',', '.') }}</strong><small>{{ $adminCount }} Admin · {{ $pegawaiCount }} Pegawai</small></article>
+        <article class="admin-stat"><span class="stat-icon icon-purple" aria-hidden="true">▤</span><span class="stat-label">Kapasitas Penyimpanan</span><strong>{{ $storageUsedHuman }} <span class="stat-total">/ {{ $storageQuotaHuman }}</span></strong><div class="storage-track"><span style="width: {{ min(100, $statusSistem['storage_persen']) }}%; background: {{ $statusSistem['storage_persen'] > 90 ? '#dc2626' : ($statusSistem['storage_persen'] >= 70 ? '#d97706' : '#16a34a') }}"></span></div><small>{{ $statusSistem['ukuran_tidak_diketahui'] ? 'Ukuran belum tercatat untuk ' . $statusSistem['ukuran_tidak_diketahui'] . ' arsip' : $statusSistem['storage_persen'] . '% terpakai' }}</small></article>
     </section>
 
-    <section class="admin-panel">
-        <h2>Arsip Terbaru <a style="float:right;font-size:11px" href="{{ route('admin.arsip.index') }}">Kelola semua →</a></h2>
-        <div class="admin-table-wrap"><table class="admin-table">
-            <thead><tr><th>Dokumen</th><th>Nomor Surat</th><th>Kategori</th><th>Pengunggah</th><th>Ditambahkan</th><th>Aksi</th></tr></thead>
-            <tbody>
-                @forelse($arsipTerbaru as $arsip)
-                    <tr><td>{{ $arsip->judul }}</td><td>{{ $arsip->nomor_surat ?: '-' }}</td><td>{{ $arsip->kategori }}</td><td>{{ $arsip->user->name ?? '-' }}</td><td>{{ $arsip->created_at->format('d/m/Y') }}</td><td><a href="{{ route('admin.arsip.edit', $arsip->id) }}">Edit</a> · <a href="{{ route('admin.arsip.show', $arsip->id) }}">Detail</a></td></tr>
+    {{-- Akses cepat --}}
+    <section class="dashboard-panel">
+        <div class="panel-heading"><div><span class="section-kicker">NAVIGASI</span><h2>Akses Cepat</h2></div></div>
+        <div class="quick-links">
+            <a class="quick-link" href="{{ route('admin.arsip.index') }}"><span class="quick-icon icon-blue">▣</span><strong>Manajemen Arsip</strong><small>Unggah dan kelola metadata dokumen</small><span class="quick-arrow">→</span></a>
+            <a class="quick-link" href="{{ route('admin.permohonan.index') }}"><span class="quick-icon icon-amber">◷</span><strong>Persetujuan Permohonan</strong><small>Tinjau permohonan arsip pegawai</small>@if($permohonanMenunggu)<b class="pending-badge">{{ $permohonanMenunggu }} menunggu</b>@endif<span class="quick-arrow">→</span></a>
+            @if(in_array(auth()->user()->role, ['admin', 'super_admin'], true))
+                <a class="quick-link" href="{{ route('admin.users.index') }}"><span class="quick-icon icon-green">♧</span><strong>Manajemen Pengguna</strong><small>Atur role dan akses pengguna</small><span class="quick-arrow">→</span></a>
+                <a class="quick-link" href="{{ route('admin.kategori.index') }}"><span class="quick-icon icon-purple">▤</span><strong>Kategori &amp; Klasifikasi</strong><small>Atur jenis surat dan klasifikasi</small><span class="quick-arrow">→</span></a>
+            @else
+                <a class="quick-link" href="{{ route('admin.aktivitas') }}"><span class="quick-icon icon-green">◷</span><strong>Riwayat Aktivitas</strong><small>Pantau tindakan pengguna</small><span class="quick-arrow">→</span></a>
+                <a class="quick-link" href="{{ route('admin.arsip.create') }}"><span class="quick-icon icon-purple">＋</span><strong>Tambah Arsip</strong><small>Tambahkan dokumen baru</small><span class="quick-arrow">→</span></a>
+            @endif
+        </div>
+    </section>
+
+    {{-- Grafik dan antrean --}}
+    <section class="dashboard-content-grid">
+        <article class="dashboard-panel chart-panel">
+            <div class="panel-heading"><div><span class="section-kicker">ANALITIK</span><h2>Dokumen Diunggah per Bulan</h2></div><label class="year-filter">Tahun <select x-model="year" x-on:change="loadChart()">@foreach($daftarTahun as $tahun)<option value="{{ $tahun }}">{{ $tahun }}</option>@endforeach</select></label></div>
+            <div class="chart-summary"><span>Total tahun ini <strong x-text="chartTotal"></strong></span><span>Bulan tertinggi <strong x-text="peakMonth"></strong></span></div>
+            <div class="chart-loading" x-show="chartLoading" x-cloak>Memuat grafik…</div><div class="chart-error" x-show="chartError" x-cloak><span x-text="chartError"></span><button type="button" x-on:click="loadChart()">Coba lagi</button></div>
+            <div class="chart-empty" x-show="!chartLoading && !chartError && chartTotal === 0" x-cloak>Belum ada arsip yang diunggah pada tahun ini.</div>
+            <div class="admin-chart-wrap" x-show="!chartLoading && !chartError && chartTotal > 0"><canvas id="adminUploadsChart" aria-label="Grafik jumlah arsip yang diunggah per bulan" role="img"></canvas></div>
+            <table class="sr-only"><caption>Jumlah arsip diunggah per bulan</caption><tbody><template x-for="month in chart.labels"><tr><th x-text="month"></th><td x-text="chart.data[chart.labels.indexOf(month)]"></td></tr></template></tbody></table>
+        </article>
+        <div class="dashboard-stack">
+            <article class="dashboard-panel pending-panel">
+                <div class="panel-heading"><div><span class="section-kicker">TINDAKAN DIPERLUKAN</span><h2>Permohonan Terbaru</h2></div><a class="panel-link" href="{{ route('admin.permohonan.index') }}">Lihat semua →</a></div>
+                @forelse($permohonanTerbaru as $request)
+                    <div class="pending-item"><span class="avatar-glass avatar-small">{{ strtoupper(mb_substr($request->user->name ?? 'P', 0, 1)) }}</span><div class="pending-copy"><strong>{{ $request->user->name ?? 'Pengguna' }}</strong><small>{{ $request->user->division ?: 'Pegawai' }} · {{ $request->created_at->locale('id')->diffForHumans() }}</small><span>{{ $request->judul_arsip }}</span></div><div class="pending-actions"><form method="POST" action="{{ route('admin.permohonan.update', $request) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="Disetujui"><button class="approval-button approve" aria-label="Setujui permohonan {{ $request->judul_arsip }}" title="Setujui">✓</button></form><details class="reject-details"><summary class="approval-button reject" aria-label="Tolak permohonan {{ $request->judul_arsip }}" title="Tolak">×</summary><form class="reject-form" method="POST" action="{{ route('admin.permohonan.update', $request) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="Ditolak"><label>Alasan penolakan<textarea name="alasan_penolakan" required minlength="10" maxlength="300" rows="2"></textarea></label><button type="submit">Tolak Permohonan</button></form></details></div></div>
                 @empty
-                    <tr><td class="admin-empty" colspan="6">Belum ada arsip.</td></tr>
+                    <div class="admin-empty-state">✓ Tidak ada permohonan yang menunggu.</div>
                 @endforelse
-            </tbody>
-        </table></div>
+            </article>
+            <article class="dashboard-panel categories-panel"><div class="panel-heading"><div><span class="section-kicker">DOKUMEN</span><h2>Kategori Paling Banyak Diakses</h2></div></div>
+                @forelse($categoryAccess as $category)
+                    @php($categoryPercent = $categoryMaxAccess ? (int) round($category->total / $categoryMaxAccess * 100) : 0)
+                    <div class="category-row" title="{{ $category->kategori }}"><span>{{ $category->kategori }}</span><div class="category-track"><span style="width: {{ $categoryPercent }}%"></span></div><strong>{{ $category->total }}</strong></div>
+                @empty <p class="admin-empty-state">Belum ada data akses dokumen.</p> @endforelse
+            </article>
+        </div>
     </section>
+
+    {{-- Aktivitas dan pengguna --}}
+    <section class="dashboard-content-grid equal-columns">
+        <article class="dashboard-panel"><div class="panel-heading"><div><span class="section-kicker">AUDIT TRAIL</span><h2>Aktivitas Terbaru</h2></div><a class="panel-link" href="{{ route('admin.aktivitas') }}">Lihat semua log →</a></div><div class="activity-list">
+            @forelse($logsTerbaru as $log)<div class="activity-item"><span class="avatar-glass avatar-small">{{ strtoupper(mb_substr($log->user->name ?? 'P', 0, 1)) }}</span><div><strong>{{ $log->user->name ?? 'Pengguna' }}</strong><span>{{ $log->activity }}</span><small title="{{ $log->created_at->format('d/m/Y H:i') }}">{{ $log->created_at->locale('id')->diffForHumans() }}</small></div><span class="activity-badge">{{ $log->activity }}</span></div>
+            @empty <p class="admin-empty-state">Belum ada aktivitas tercatat.</p> @endforelse
+        </div></article>
+        <article class="dashboard-panel"><div class="panel-heading"><div><span class="section-kicker">PENGGUNA</span><h2>Login Terakhir</h2></div>@if(Route::has('admin.users.index'))<a class="panel-link" href="{{ route('admin.users.index') }}">Kelola pengguna →</a>@endif</div><div class="login-list">
+            @forelse($penggunaTerakhirLogin as $pengguna)<div class="login-item"><span class="avatar-glass avatar-small">{{ strtoupper(mb_substr($pengguna->name ?? 'P', 0, 1)) }}</span><strong title="{{ $pengguna->name }}">{{ $pengguna->name }}</strong><span class="role-badge {{ in_array($pengguna->role, ['admin','super_admin','admin_divisi'], true) ? 'role-admin' : 'role-staff' }}">{{ in_array($pengguna->role, ['admin','super_admin','admin_divisi'], true) ? 'Admin' : 'Pegawai' }}</span><small>{{ $pengguna->last_login_at?->locale('id')->diffForHumans() ?? 'Belum pernah login' }}</small></div>
+            @empty <p class="admin-empty-state">Belum ada data login.</p> @endforelse
+        </div></article>
+    </section>
+
+    {{-- Arsip terbaru --}}
+    <section class="dashboard-panel"><div class="panel-heading"><div><span class="section-kicker">KOLEKSI</span><h2>Arsip Terbaru</h2></div><a class="panel-link" href="{{ route('admin.arsip.index') }}">Kelola semua →</a></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Judul Dokumen</th><th>Nomor Surat</th><th>Kategori</th><th>Pengunggah</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>
+            @forelse($arsipTerbaru as $arsip)<tr><td><strong title="{{ $arsip->judul }}">{{ \Illuminate\Support\Str::limit($arsip->judul, 55) }}</strong></td><td>{{ $arsip->nomor_surat ?: '—' }}</td><td><span class="category-badge">{{ $arsip->kategori }}</span></td><td>{{ $arsip->user->name ?? '—' }}</td><td>{{ ($arsip->tanggal_unggah ?: $arsip->created_at)->format('d/m/Y') }}</td><td class="row-actions"><a href="{{ route('admin.arsip.show', $arsip) }}">Detail</a><a href="{{ route('admin.arsip.edit', $arsip) }}">Edit</a></td></tr>
+            @empty <tr><td class="admin-empty-state" colspan="6">Belum ada arsip. <a href="{{ route('admin.arsip.create') }}">Tambah arsip</a></td></tr> @endforelse
+        </tbody></table></div>
+    </section>
+    <div class="dashboard-toast" role="status" aria-live="polite" x-show="toast" x-transition x-cloak x-text="toast"></div>
 </main>
 @endsection
