@@ -105,7 +105,7 @@
 
     <form action="{{ route('pegawai.arsip.index') }}" method="GET" class="search-form">
         <div class="form-input-wrap">
-            <input type="text" name="search" class="form-control-custom" placeholder="Ketik kata kunci atau nomor dokumen..." value="{{ request('search') }}">
+            <input type="text" name="q" minlength="2" maxlength="100" class="form-control-custom" placeholder="Ketik kata kunci atau nomor dokumen..." value="{{ request('q', request('search')) }}">
         </div>
 
         <div class="form-select-wrap">
@@ -118,7 +118,7 @@
         </div>
 
         <button type="submit" class="btn-search">Cari Dokumen</button>
-        @if(request('search') || request('kategori'))
+        @if(request('search') || request('q') || request('kategori') || request('favorit'))
             <a href="{{ route('pegawai.arsip.index') }}" class="btn-reset">Reset</a>
         @endif
     </form>
@@ -153,4 +153,7 @@
         </div>
     @endforelse
 </div>
+@if($arsips->hasPages())
+    <div style="margin-top:20px">{{ $arsips->links() }}</div>
+@endif
 @endsection

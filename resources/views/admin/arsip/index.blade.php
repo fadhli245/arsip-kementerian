@@ -89,7 +89,7 @@
                     <td>{{ $arsip->user->nama ?? $arsip->user->name ?? 'Admin' }}</td>
                     <td>
                         <div style="display: flex; gap: 6px; align-items: center;">
-                            <a href="{{ asset('storage/' . $arsip->file_path) }}" target="_blank" style="background: var(--blue); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Lihat</a>
+                            <a href="{{ route('admin.arsip.download', $arsip->id) }}" style="background: var(--blue); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Unduh</a>
                             <a href="{{ route('admin.arsip.edit', $arsip->id) }}" style="background: #eab308; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600;">Edit</a>
                             <form action="{{ route('admin.arsip.destroy', $arsip->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus arsip ini?')" style="margin: 0;">
                                 @csrf

@@ -7,6 +7,7 @@ use App\Models\Arsip;
 use App\Models\ActivityLog;
 use App\Models\User;
 use App\Models\ArchiveRequest;
+use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -71,15 +72,27 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'status' => ['required', 'in:Diproses,Disetujui,Ditolak'],
+            'alasan_penolakan' => ['nullable', 'required_if:status,Ditolak', 'string', 'max:1000'],
         ]);
 
-        $archiveRequest->update($validated);
+        $archiveRequest->update([
+            'status' => $validated['status'],
+            'alasan_penolakan' => $validated['status'] === 'Ditolak' ? ($validated['alasan_penolakan'] ?? null) : null,
+        ]);
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity' => 'Ubah Status Permohonan',
             'description' => 'Mengubah status permohonan ' . $archiveRequest->judul_arsip . ' menjadi ' . $archiveRequest->status,
             'subject_type' => $archiveRequest->getMorphClass(),
             'subject_id' => $archiveRequest->id,
+        ]);
+
+        UserNotification::create([
+            'user_id' => $archiveRequest->user_id,
+            'type' => $validated['status'] === 'Disetujui' ? 'success' : ($validated['status'] === 'Ditolak' ? 'danger' : 'info'),
+            'title' => 'Permohonan ' . strtolower($validated['status']),
+            'message' => $archiveRequest->judul_arsip . ($archiveRequest->alasan_penolakan ? ': ' . $archiveRequest->alasan_penolakan : ''),
+            'url' => route('pegawai.dashboard'),
         ]);
 
         return back()->with('success', 'Status permohonan berhasil diperbarui.');

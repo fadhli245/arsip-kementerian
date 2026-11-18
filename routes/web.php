@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\ArsipImportController;
 use App\Http\Controllers\Admin\ArchiveCategoryController;
 use App\Http\Controllers\Pegawai\ArsipController as PegawaiArsipController;
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
+use App\Http\Controllers\Pegawai\NotificationController as PegawaiNotificationController;
+use App\Http\Controllers\Pegawai\ProfileController as PegawaiProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,9 +107,16 @@ Route::middleware(['auth', 'role:user,pegawai'])->prefix('pegawai')->name('pegaw
     // Dashboard Pegawai
     Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])->name('dashboard');
     Route::post('/permohonan-arsip', [PegawaiDashboardController::class, 'storeRequest'])->name('permohonan.store');
+    Route::get('/profil', [PegawaiProfileController::class, 'show'])->name('profile');
+    Route::put('/profil/kata-sandi', [PegawaiProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::get('/notifikasi', [PegawaiNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifikasi/baca-semua', [PegawaiNotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
     // Pencarian & Unduh Arsip Pegawai
     Route::get('/arsip', [PegawaiArsipController::class, 'index'])->name('arsip.index');
     Route::get('/arsip/{id}/download', [PegawaiArsipController::class, 'download'])->name('arsip.download');
     Route::get('/arsip/{id}/preview', [PegawaiArsipController::class, 'preview'])->name('arsip.preview');
+    Route::post('/arsip/{id}/log-preview', [PegawaiArsipController::class, 'logPreview'])->name('arsip.log-preview');
+    Route::post('/arsip/{id}/favorit', [PegawaiArsipController::class, 'addFavorite'])->name('arsip.favorite.store');
+    Route::delete('/arsip/{id}/favorit', [PegawaiArsipController::class, 'removeFavorite'])->name('arsip.favorite.destroy');
 });

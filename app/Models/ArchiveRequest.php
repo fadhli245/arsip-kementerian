@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class ArchiveRequest extends Model
 {
-    protected $fillable = ['user_id', 'judul_arsip', 'keterangan', 'status'];
+    protected $fillable = [
+        'user_id',
+        'judul_arsip',
+        'keterangan',
+        'kategori',
+        'referensi',
+        'alasan_penolakan',
+        'status',
+    ];
 
     public function user()
     {

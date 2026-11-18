@@ -77,7 +77,7 @@ class ArsipController extends Controller
         $namaFile = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
         
         // Simpan file ke folder storage sementara (akan kita sesuaikan untuk Vercel nanti)
-        $path = $file->storeAs('dokumen_arsip', $namaFile, 'public');
+        $path = $file->storeAs('private/dokumen_arsip', $namaFile, 'local');
 
         // 3. Simpan data teks dan nama file ke Database PostgreSQL (Supabase)
         $arsip = Arsip::create([
@@ -108,9 +108,10 @@ class ArsipController extends Controller
         $arsip = Arsip::findOrFail($id);
         
         // Cek apakah filenya benar-benar ada di server
-        if ($arsip->file_path && Storage::disk('public')->exists($arsip->file_path)) {
+        $disk = $this->archiveDisk($arsip->file_path);
+        if ($arsip->file_path && $disk) {
             ActivityLogger::record('Unduh Arsip', 'Mengunduh arsip: ' . $arsip->judul, $arsip);
-            return Storage::disk('public')->download($arsip->file_path);
+            return Storage::disk($disk)->download($arsip->file_path);
         }
         
         return back()->with('error', 'Maaf, file fisik dokumen tidak ditemukan di server.');
@@ -145,11 +146,9 @@ class ArsipController extends Controller
         // Jika Admin mengunggah file baru
         if ($request->hasFile('file_arsip')) {
             // Hapus file lama dari folder storage
-            if (Storage::disk('public')->exists($arsip->file_path)) {
-                Storage::disk('public')->delete($arsip->file_path);
-            }
+            $this->deleteArchiveFile($arsip->file_path);
             // Simpan file baru
-            $filePath = $request->file('file_arsip')->store('dokumen_arsip', 'public');
+            $filePath = $request->file('file_arsip')->store('private/dokumen_arsip', 'local');
             $arsip->file_path = $filePath;
         }
 
@@ -176,9 +175,7 @@ class ArsipController extends Controller
         $arsip = Arsip::findOrFail($id);
 
         // Hapus file fisiknya dulu dari folder
-        if (Storage::disk('public')->exists($arsip->file_path)) {
-            Storage::disk('public')->delete($arsip->file_path);
-        }
+        $this->deleteArchiveFile($arsip->file_path);
 
         // Baru hapus datanya dari database
         $arsip->delete();
@@ -232,6 +229,25 @@ class ArsipController extends Controller
         
         // Tampilkan halaman detail dan kirimkan data arsip tersebut
         return view('admin.arsip.show', compact('arsip'));
+    }
+
+    private function archiveDisk(?string $path): ?string
+    {
+        if (!$path) return null;
+
+        foreach (['local', 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($path)) return $disk;
+        }
+
+        return null;
+    }
+
+    private function deleteArchiveFile(?string $path): void
+    {
+        if (!$path) return;
+
+        $disk = $this->archiveDisk($path);
+        if ($disk) Storage::disk($disk)->delete($path);
     }
 
     private function parseDivisions(string $divisions): array

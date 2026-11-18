@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIM Arsip Kementerian Perhubungan Laut</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if(request()->routeIs('pegawai.dashboard'))
+        <script>
+            (() => {
+                try {
+                    if (localStorage.getItem('arsip-theme') === 'dark') document.documentElement.classList.add('dark');
+                } catch (_) {}
+            })();
+        </script>
+    @endif
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <!-- Google Fonts: Plus Jakarta Sans -->
@@ -115,8 +125,9 @@
             }
         }
     </style>
+    @stack('styles')
 </head>
-<body>
+<body class="{{ request()->routeIs('pegawai.dashboard') ? 'pegawai-dashboard-page' : '' }}">
 
     <!-- Backdrop khusus mobile -->
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -174,13 +185,55 @@
         <!-- Top Navbar -->
         <div class="top-navbar">
             <div class="navbar-left">
-                <button class="hamburger-btn" id="sidebarToggle" title="Menu Navigasi">
+                <button class="hamburger-btn" id="sidebarToggle" title="Menu Navigasi" aria-label="Buka menu navigasi" aria-controls="appSidebar" aria-expanded="false">
                     ☰
                 </button>
                 <div class="navbar-title">
                     <span>📍 Direktorat Jenderal Perhubungan Laut</span>
                 </div>
             </div>
+            @if(request()->routeIs('pegawai.dashboard') && auth()->user() && in_array(auth()->user()->role, ['user', 'pegawai'], true))
+                <div class="pegawai-topbar-actions">
+                    <button class="topbar-icon-button theme-switch" type="button" aria-label="Aktifkan mode gelap" title="Ganti tema" onclick="window.togglePegawaiTheme()">
+                        <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.1A8.6 8.6 0 0 1 8.9 3.8 8.7 8.7 0 1 0 20.2 15.1Z"/></svg>
+                        <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+                    </button>
+                    <div class="topbar-dropdown" x-data="notificationMenu()" data-unread="{{ (int) $notifikasiBelumDibaca }}">
+                        <button class="topbar-icon-button notification-trigger" type="button" aria-label="Notifikasi" x-on:click="open = !open" x-bind:aria-expanded="open">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                            <span class="notification-count" x-show="unread > 0" x-cloak x-text="unread > 9 ? '9+' : unread"></span>
+                        </button>
+                        <div class="topbar-menu notification-menu" x-show="open" x-transition x-cloak x-on:click.outside="open = false" x-on:keydown.escape.window="open = false">
+                            <div class="dropdown-heading"><strong>Notifikasi</strong><span x-text="unread + ' belum dibaca'"></span></div>
+                            @forelse($daftarNotifikasi as $notification)
+                                <a class="notification-item {{ $notification->read_at ? 'is-read' : '' }}" href="{{ $notification->url ?: route('pegawai.dashboard') }}">
+                                    <span class="notification-type notification-type--{{ $notification->type }}">{{ $notification->type === 'success' ? '✓' : ($notification->type === 'danger' ? '!' : '•') }}</span>
+                                    <span class="notification-copy"><strong>{{ $notification->title }}</strong><small>{{ $notification->message }}</small><time>{{ $notification->created_at->locale('id')->diffForHumans() }}</time></span>
+                                    @if(!$notification->read_at)<i class="unread-dot" aria-label="Belum dibaca"></i>@endif
+                                </a>
+                            @empty
+                                <div class="notification-empty">Belum ada notifikasi.</div>
+                            @endforelse
+                            <div class="notification-footer">
+                                <button type="button" x-on:click="markAllRead()" x-bind:disabled="unread === 0">Tandai semua dibaca</button>
+                                <a href="{{ route('pegawai.notifications.index') }}">Lihat semua</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="topbar-dropdown profile-dropdown" x-data="{ open: false }">
+                        <button class="profile-trigger" type="button" x-on:click="open = !open" x-bind:aria-expanded="open">
+                            <span class="user-avatar">{{ strtoupper(mb_substr(Auth::user()->nama ?? Auth::user()->name ?? 'P', 0, 1)) }}</span>
+                            <span class="user-meta"><strong>{{ Auth::user()->nama ?? Auth::user()->name ?? 'Pegawai' }}</strong><small>{{ Auth::user()->division ?: 'Pegawai Kementerian' }}</small></span>
+                            <span class="profile-chevron" aria-hidden="true">⌄</span>
+                        </button>
+                        <div class="topbar-menu profile-menu" x-show="open" x-transition x-cloak x-on:click.outside="open = false" x-on:keydown.escape.window="open = false">
+                            <a href="{{ route('pegawai.profile') }}">Profil Saya</a>
+                            <a href="{{ route('pegawai.profile') }}#ubah-kata-sandi">Ubah Kata Sandi</a>
+                            <form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="profile-logout">Keluar</button></form>
+                        </div>
+                    </div>
+                </div>
+            @else
             <div class="user-profile">
                 <!-- Tombol Logout Cepat khusus Tampilan Mobile (Menggunakan Form POST yang aman) -->
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
@@ -198,6 +251,7 @@
                     <p>Divisi Pengelolaan Sistem Data</p>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Main Content -->
@@ -230,6 +284,7 @@
         function toggleSidebar() {
             appSidebar.classList.toggle('show');
             sidebarBackdrop.classList.toggle('show');
+            sidebarToggle?.setAttribute('aria-expanded', String(appSidebar.classList.contains('show')));
         }
 
         if (sidebarToggle) {
@@ -239,6 +294,9 @@
         if (sidebarBackdrop) {
             sidebarBackdrop.addEventListener('click', toggleSidebar);
         }
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && appSidebar?.classList.contains('show')) toggleSidebar();
+        });
     </script>
 </body>
 </html>

@@ -1,294 +1,112 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM Arsip Kementerian Perhubungan Laut</title>
-    <!-- Kode untuk memanggil logo kecil di tab browser (Favicon) -->
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <meta name="theme-color" content="#050d1f">
+    <title>Masuk · SIM Arsip Kementerian Perhubungan Laut</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; height: 100vh; display: flex; overflow: hidden; }
-
-        /* Container Split Layout */
-        .login-container { display: flex; width: 100vw; height: 100vh; }
-
-        /* Sisi Kiri: Background Gradasi Solid (Tanpa Gambar Orang) */
-        .login-brand-side {
-            flex: 1.2;
-            background: linear-gradient(135deg, #0A192F 0%, #07111E 100%);
-            color: white;
-            padding: 50px 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Elemen Dekoratif Halus di Background Kiri */
-        .login-brand-side::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(2, 132, 199, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-            top: -100px;
-            right: -100px;
-            border-radius: 50%;
-        }
-
-        .brand-top { display: flex; align-items: center; gap: 12px; z-index: 2; }
-        .brand-logo-badge {
-            width: 42px;
-            height: 42px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        .brand-title-text { font-size: 13.5px; font-weight: 700; letter-spacing: 0.5px; line-height: 1.2; color: #FFFFFF; }
-        .brand-title-text span { display: block; font-size: 10.5px; font-weight: 600; color: #38BDF8; letter-spacing: 1px; text-transform: uppercase; }
-
-        .brand-body { z-index: 2; max-width: 480px; margin-top: 20px; }
-        .brand-subtitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #38BDF8; margin-bottom: 10px; }
-        .brand-body h1 { font-size: 34px; font-weight: 800; line-height: 1.25; margin-bottom: 18px; letter-spacing: -0.5px; }
-        .brand-body p { font-size: 14.5px; color: #94A3B8; line-height: 1.6; margin-bottom: 35px; }
-
-        .feature-list { display: flex; flex-direction: column; gap: 14px; }
-        .feature-item { display: flex; align-items: flex-start; gap: 12px; font-size: 13.5px; font-weight: 500; color: #E2E8F0; }
-        .feature-icon-box { min-width: 28px; height: 28px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-        .feature-text strong { display: block; font-size: 13.5px; font-weight: 700; color: #FFFFFF; }
-        .feature-text span { font-size: 12.5px; color: #94A3B8; }
-
-        .brand-footer { z-index: 2; font-size: 11.5px; color: #64748B; font-weight: 500; }
-
-        /* Sisi Kanan: Form Login */
-        .login-form-side {
-            flex: 1;
-            background: #F8FAFC;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            overflow-y: auto;
-            z-index: 10;
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 20px;
-            padding: 40px 35px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-            text-align: center;
-        }
-
-        .form-center-logo {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 18px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #0284C7, #0369A1);
-            color: #FFFFFF;
-            border-radius: 16px;
-            font-size: 26px;
-            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
-        }
-
-        .form-header { margin-bottom: 25px; text-align: center; }
-        .form-header h2 { font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; margin-bottom: 6px; }
-        .form-header p { font-size: 13px; color: #64748B; font-weight: 500; }
-        .form-header span.sub-desc { display: block; font-size: 11.5px; color: #94A3B8; margin-top: 4px; line-height: 1.4; }
-
-        .form-group { margin-bottom: 18px; text-align: left; }
-        .form-label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .input-wrapper { position: relative; }
-        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #94A3B8; }
-        .form-input {
-            width: 100%;
-            padding: 12px 14px 12px 42px;
-            background: #F8FAFC;
-            border: 1px solid #CBD5E1;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: inherit;
-            color: #0F172A;
-            transition: all 0.2s;
-            outline: none;
-        }
-        .form-input:focus {
-            background: #FFFFFF;
-            border-color: #0284C7;
-            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1);
-        }
-
-        .form-options { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; font-size: 13px; text-align: left; }
-        .remember-me { display: flex; align-items: center; gap: 8px; color: #475569; font-weight: 500; cursor: pointer; }
-        .forgot-pass { color: #0284C7; text-decoration: none; font-weight: 600; }
-        .forgot-pass:hover { text-decoration: underline; }
-
-        .btn-login {
-            width: 100%;
-            background: linear-gradient(135deg, #0284C7, #0369A1);
-            color: #FFFFFF;
-            border: none;
-            padding: 13px;
-            border-radius: 10px;
-            font-size: 14.5px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-            transition: all 0.2s;
-        }
-        .btn-login:hover {
-            filter: brightness(1.08);
-            transform: translateY(-1px);
-        }
-
-        .form-footer-note {
-            margin-top: 22px;
-            font-size: 11.5px;
-            color: #94A3B8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            border-top: 1px solid #F1F5F9;
-            padding-top: 18px;
-        }
-
-        .alert-error {
-            background: #FEF2F2;
-            border: 1px solid #FEE2E2;
-            color: #DC2626;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 18px;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        @media (max-width: 900px) {
-            .login-brand-side { display: none; }
-            .login-form-side { padding: 20px; }
-        }
-    </style>
+    <script>
+        (() => {
+            let theme = null;
+            try { theme = localStorage.getItem('arsip-theme'); } catch (_) {}
+            if (theme !== 'light' && theme !== 'dark') {
+                theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            }
+            document.documentElement.dataset.theme = theme;
+        })();
+    </script>
+    @vite(['resources/css/login.css', 'resources/js/login.js'])
 </head>
-<body>
-
-    <div class="login-container">
-        <!-- Sisi Kiri: Background Gradasi Solid (Tanpa Foto Orang) -->
-        <div class="login-brand-side">
-            <div class="brand-top">
-                <div class="brand-logo-badge">⚓</div>
-                <div class="brand-title-text">
-                    <span>Kementerian</span>
-                    Perhubungan Laut
-                </div>
+<body class="login-page">
+    <div class="login-background" aria-hidden="true">
+        <div class="login-aurora"></div>
+        <div class="login-grid"></div>
+        <div class="login-orbits">
+            <div class="login-orbit login-orbit--one">
+                <span class="orbit-node orbit-node--top">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h4l2 2h6a2.5 2.5 0 0 1 2.5 2.5v8A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-10Z"/><path d="M4 10h16"/></svg>
+                </span>
+                <span class="orbit-node orbit-node--bottom">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="7.5" ry="2.8"/><path d="M4.5 5v7c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V5M4.5 12v7c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-7M4.5 12c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8"/></svg>
+                </span>
             </div>
-
-            <div class="brand-body">
-                <div class="brand-subtitle">Sistem Informasi</div>
-                <h1>Pengarsipan Dokumen Internal Pengolahan Data</h1>
-                <p>Mendukung tata kelola arsip yang tertib, aman, dan terintegrasi untuk pelayanan publik yang lebih baik.</p>
-                
-                <div class="feature-list">
-                    <div class="feature-item">
-                        <div class="feature-icon-box">📁</div>
-                        <div class="feature-text">
-                            <strong>Akses Cepat</strong>
-                            <span>Temukan dokumen yang Anda butuhkan dengan mudah dan cepat.</span>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon-box">🛡️</div>
-                        <div class="feature-text">
-                            <strong>Aman & Terpercaya</strong>
-                            <span>Sistem dilengkapi dengan keamanan berlapis dan hak akses.</span>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon-box">☁️</div>
-                        <div class="feature-text">
-                            <strong>Terintegrasi</strong>
-                            <span>Seluruh arsip tersimpan secara terpusat dan terorganisir.</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="login-orbit login-orbit--two">
+                <span class="orbit-node orbit-node--top">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4.5 4.6v12.4H6z"/><path d="M14 3.5v5h4.5M9 13h6M9 16.5h6"/></svg>
+                </span>
+                <span class="orbit-node orbit-node--bottom">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v2"/></svg>
+                </span>
             </div>
-
-            <div class="brand-footer">
-                &copy; 2026 Direktorat Jenderal Perhubungan Laut. All rights reserved.
+            <div class="login-orbit login-orbit--three">
+                <span class="orbit-node orbit-node--top">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5h18v11H3zM2 5h20v3.5H2z"/><path d="M9 12h6"/></svg>
+                </span>
+                <span class="orbit-node orbit-node--bottom">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h4l2 2h6a2.5 2.5 0 0 1 2.5 2.5v8A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-10Z"/><path d="M4 10h16"/></svg>
+                </span>
             </div>
         </div>
+        <i class="login-dust login-dust--1"></i><i class="login-dust login-dust--2"></i>
+        <i class="login-dust login-dust--3"></i><i class="login-dust login-dust--4"></i>
+        <i class="login-dust login-dust--5"></i><i class="login-dust login-dust--6"></i>
+        <i class="login-dust login-dust--7"></i>
+    </div>
 
-        <!-- Sisi Kanan: Kotak Form Login -->
-        <div class="login-form-side">
-            <div class="login-card">
-                
-                <!-- Logo di Tengah Atas Form -->
-                <div class="form-center-logo">
-                    ⚓
-                </div>
-
-                <div class="form-header">
-                    <h2>Login Sistem</h2>
-                    <p>Pengarsipan Dokumen Kementerian</p>
-                    <span class="sub-desc">Silakan masuk menggunakan akun yang telah diberikan oleh administrator.</span>
-                </div>
-
-                @if($errors->any())
-                    <div class="alert-error">
-                        {{ $errors->first() }}
-                    </div>
-                @endif
-
-               <form action="{{ route('login.proses') }}" method="POST">
-    @csrf
-    
-    <div class="form-group">
-        <label class="form-label">Email</label>
-        <div class="input-wrapper">
-            <span class="input-icon">✉️</span>
-            <input type="email" name="email" class="form-input" placeholder="Masukkan email terdaftar" value="{{ old('email') }}" required autofocus>
+    <main class="login-card">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Beralih ke mode terang" aria-pressed="false">
+            <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.1A8.6 8.6 0 0 1 8.9 3.8 8.7 8.7 0 1 0 20.2 15.1Z"/></svg>
+            <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+            <span data-theme-label>Mode terang</span>
+        </button>
+        <div class="brand">
+            <span class="brand-mark"><img src="{{ asset('images/logo.png') }}" alt=""></span>
+            <span class="brand-name"><span>KEMENTERIAN</span>Perhubungan Laut</span>
         </div>
-    </div>
+        <div class="eyebrow">SISTEM INFORMASI ARSIP</div>
+        <header class="form-header">
+            <h1>Selamat datang</h1>
+            <p>Masuk untuk mengakses arsip kedinasan secara aman dan terintegrasi.</p>
+        </header>
 
-    <div class="form-group">
-        <label class="form-label">Password</label>
-        <div class="input-wrapper">
-            <span class="input-icon">🔒</span>
-            <input type="password" name="password" class="form-input" placeholder="Masukkan kata sandi" required>
-        </div>
-    </div>
+        @if($errors->any())
+            <div class="login-error" role="alert">{{ $errors->first() }}</div>
+        @endif
 
-    <div class="form-options">
-        <label class="remember-me">
-            <input type="checkbox" name="remember" style="accent-color: #0284C7; width: 16px; height: 16px;"> Ingat saya
-        </label>
-        <a href="#" class="forgot-pass">Lupa kata sandi?</a>
-    </div>
-
-    <button type="submit" class="btn-login">Masuk</button>
-</form>
-                <div class="form-footer-note">
-                    🔒 Hanya untuk pegawai Kementerian Perhubungan Laut
+        <form class="login-form" action="{{ route('login.proses') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m5 7 7 5.5L19 7"/></svg>
+                    <input id="email" type="email" name="email" class="form-input" placeholder="Masukkan email terdaftar" value="{{ old('email') }}" autocomplete="username" required autofocus>
                 </div>
             </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+                    <input id="password" type="password" name="password" class="form-input form-input--password" placeholder="Masukkan kata sandi" autocomplete="current-password" required>
+                    <button class="password-toggle" type="button" data-password-toggle aria-label="Tampilkan password" aria-pressed="false">
+                        <svg class="eye-icon eye-icon--open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                        <svg class="eye-icon eye-icon--closed" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6.1 0 9.5 6 9.5 6a16.2 16.2 0 0 1-3.1 3.7M6.2 6.2C3.8 7.7 2.5 12 2.5 12s3.4 6 9.5 6c.9 0 1.8-.2 2.6-.5"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-options">
+                <label class="remember-me"><input type="checkbox" name="remember"> <span>Ingat saya</span></label>
+                <a href="#" class="forgot-pass">Lupa kata sandi?</a>
+            </div>
+            <button type="submit" class="btn-login"><span class="btn-spinner" aria-hidden="true"></span><span class="btn-label">Masuk ke sistem</span></button>
+        </form>
+        <div class="form-footer-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.9 8.1 7 10 4.1-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Khusus pegawai Kementerian Perhubungan Laut</span>
         </div>
-    </div>
-
+    </main>
 </body>
 </html>

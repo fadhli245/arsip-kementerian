@@ -2,123 +2,110 @@
 
 @section('title', 'Dashboard Pegawai - SIM Arsip Kementerian Perhubungan Laut')
 
+@push('styles')
+    @vite(['resources/css/pegawai-dashboard.css', 'resources/js/pegawai-dashboard.js'])
+@endpush
+
 @section('content')
-<style>
-    .pegawai-dashboard { display: flex; flex-direction: column; gap: 22px; }
-    .pegawai-hero { padding: 28px 32px; color: #fff; border-radius: 16px; background: linear-gradient(135deg, #0A192F, #0284C7); }
-    .pegawai-hero h1 { font-size: 24px; margin: 6px 0 8px; }
-    .pegawai-hero p { color: #E2E8F0; max-width: 720px; line-height: 1.6; }
-    .pegawai-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-    .pegawai-card, .pegawai-panel { background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; box-shadow: 0 4px 12px rgba(15,23,42,.03); }
-    .pegawai-card { padding: 18px 20px; }
-    .pegawai-card small { color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
-    .pegawai-card strong { display: block; color: #0F172A; font-size: 27px; margin-top: 8px; }
-    .pegawai-panel { padding: 20px; }
-    .pegawai-panel h2 { color: #0F172A; font-size: 16px; margin: 0 0 14px; }
-    .pegawai-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
-    .pegawai-table-wrap { overflow-x: auto; }
-    .pegawai-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .pegawai-table th, .pegawai-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #E2E8F0; vertical-align: middle; }
-    .pegawai-table th { color: #475569; background: #F8FAFC; white-space: nowrap; }
-    .pegawai-table td { color: #334155; }
-    .category-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
-    .category-chip { text-decoration: none; padding: 7px 11px; border-radius: 20px; border: 1px solid #CBD5E1; color: #475569; font-size: 12px; font-weight: 700; }
-    .category-chip.active, .category-chip:hover { background: #E0F2FE; color: #0369A1; border-color: #7DD3FC; }
-    .action-icon { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #CBD5E1; color: #0369A1; background: #fff; text-decoration: none; }
-    .action-icon:hover { background: #E0F2FE; }
-    .action-icon.download { color: #15803D; border-color: #BBF7D0; background: #F0FDF4; }
-    .status { display: inline-block; padding: 5px 9px; border-radius: 20px; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; }
-    .request-form { display: grid; gap: 10px; }
-    .request-form input, .request-form textarea { width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font: inherit; }
-    .request-form button { justify-self: start; background: #0369A1; color: #fff; border: 0; border-radius: 8px; padding: 10px 15px; font-weight: 700; cursor: pointer; }
-    .empty-state { color: #64748B; padding: 20px 10px !important; text-align: center !important; }
-    @media (max-width: 800px) { .pegawai-stats { grid-template-columns: repeat(2, minmax(0,1fr)); } .pegawai-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { .pegawai-stats { grid-template-columns: 1fr 1fr; gap: 8px; } .pegawai-card { padding: 14px; } .pegawai-hero { padding: 22px; } }
-</style>
+@php
+    $hour = now()->hour;
+    $greeting = $hour < 11 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
+    $todayText = now()->locale('id')->translatedFormat('l, d F Y');
+@endphp
+<div class="pegawai-dashboard" x-data="pegawaiDashboard()">
+    <script>
+        window.pegawaiDashboardData = {
+            archives: @js($arsipDashboardData),
+            favorites: @js($favoriteData),
+            history: @js($riwayatDashboardData),
+            favoriteIds: @js($favoriteIds),
+            distribution: @js($distribusiKategori),
+            categories: @js($kategoriList->values()),
+            categoryCounts: @js($jumlahKategori),
+            csrf: @js(csrf_token()),
+            selectedCategory: @js($kategoriAktif),
+            selectedYear: @js($tahunAktif),
+            notificationUrl: @js(route('pegawai.notifications.read-all')),
+        };
+    </script>
 
-<div class="pegawai-dashboard">
-    <section class="pegawai-hero">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#BAE6FD">Portal Layanan Pegawai</div>
-        <h1>Selamat datang, {{ auth()->user()->name }}!</h1>
-        <p>Akses arsip kedinasan yang tersedia, pantau aktivitas Anda, dan ajukan permohonan dokumen melalui dashboard ini.</p>
-    </section>
+    @include('pegawai.dashboard.partials.hero', ['greeting' => $greeting, 'todayText' => $todayText])
+    @include('pegawai.dashboard.partials.stats')
 
-    <section class="pegawai-stats" aria-label="Statistik aktivitas pegawai">
-        <div class="pegawai-card"><small>Arsip tersedia</small><strong>{{ number_format($totalArsip) }}</strong></div>
-        <div class="pegawai-card"><small>Total akses</small><strong>{{ number_format($totalAkses) }}</strong></div>
-        <div class="pegawai-card"><small>Unduhan</small><strong>{{ number_format($totalUnduhan) }}</strong></div>
-        <div class="pegawai-card"><small>Preview</small><strong>{{ number_format($totalPreview) }}</strong></div>
-    </section>
+    <div class="dashboard-main-grid">
+        <section class="dashboard-panel archive-panel" aria-labelledby="archive-panel-title">
+            <div class="panel-heading archive-heading">
+                <div>
+                    <span class="section-kicker">KOLEKSI DOKUMEN</span>
+                    <h2 id="archive-panel-title">Arsip Kedinasan Terbaru &amp; Siap Unduh</h2>
+                    <p>Dokumen yang dapat Anda akses sesuai hak akses akun.</p>
+                </div>
+                <label class="year-filter">
+                    <span>Tahun</span>
+                    <select x-model="tahun" aria-label="Filter tahun arsip">
+                        <option value="">Semua Tahun</option>
+                        @foreach($daftarTahun as $tahun)
+                            <option value="{{ $tahun }}" {{ $tahunAktif === (string) $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            </div>
 
-    <section class="pegawai-panel">
-        <h2>Arsip Kedinasan Terbaru &amp; Siap Unduh</h2>
-        <nav class="category-filters" aria-label="Filter cepat kategori arsip">
-            <a class="category-chip {{ $kategoriAktif === '' ? 'active' : '' }}" href="{{ route('pegawai.dashboard') }}">Semua</a>
-            @foreach($kategoriList as $kategori)
-                <a class="category-chip {{ $kategoriAktif === $kategori ? 'active' : '' }}" href="{{ route('pegawai.dashboard', ['kategori' => $kategori]) }}">{{ $kategori }}</a>
-            @endforeach
-            <a class="category-chip" href="{{ route('pegawai.arsip.index', ['kategori' => $kategoriAktif ?: null]) }}">Pencarian lanjutan</a>
-        </nav>
-        <div class="pegawai-table-wrap">
-            <table class="pegawai-table">
-                <thead><tr><th>Judul Dokumen</th><th>Kategori</th><th>Tanggal Dokumen</th><th style="text-align:center">Aksi</th></tr></thead>
-                <tbody>
-                @forelse($arsips as $arsip)
-                    <tr>
-                        <td><strong>{{ $arsip->judul }}</strong></td>
-                        <td>{{ $arsip->kategori }}</td>
-                        <td>{{ $arsip->tanggal_dokumen ? \Carbon\Carbon::parse($arsip->tanggal_dokumen)->format('d/m/Y') : '-' }}</td>
-                        <td style="text-align:center;white-space:nowrap">
-                            <a class="action-icon" href="{{ route('pegawai.arsip.preview', $arsip->id) }}" target="_blank" rel="noopener" aria-label="Preview {{ $arsip->judul }}" title="Preview" >
-                                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
-                            </a>
-                            <a class="action-icon download" href="{{ route('pegawai.arsip.download', $arsip->id) }}" aria-label="Unduh {{ $arsip->judul }}" title="Unduh">
-                                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td class="empty-state" colspan="4">Belum ada arsip pada kategori ini.</td></tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-    </section>
+            <div class="archive-filters" role="group" aria-label="Filter kategori arsip">
+                <button type="button" class="filter-pill" :class="{ 'is-active': kategori === '' }" x-on:click="kategori = ''">Semua <span>{{ $totalArsip }}</span></button>
+                @foreach($kategoriList as $kategori)
+                    <button type="button" class="filter-pill" :class="{ 'is-active': kategori === @js($kategori) }" x-on:click="kategori = @js($kategori)">
+                        {{ $kategori }} <span>{{ $jumlahKategori->get($kategori, 0) }}</span>
+                    </button>
+                @endforeach
+                <a class="filter-pill filter-advanced" href="{{ route('pegawai.arsip.index') }}">Pencarian lanjutan <span aria-hidden="true">↗</span></a>
+            </div>
 
-    <div class="pegawai-grid">
-        <section class="pegawai-panel">
-            <h2>Riwayat Unduhan / Akses Terakhir</h2>
-            <div class="pegawai-table-wrap"><table class="pegawai-table">
-                <thead><tr><th>Aktivitas</th><th>Dokumen</th><th>Waktu</th></tr></thead>
-                <tbody>
-                @forelse($riwayat as $log)
-                    <tr><td>{{ $log->activity }}</td><td>{{ $log->subject->judul ?? $log->description }}</td><td>{{ $log->created_at->format('d/m/Y H:i') }}</td></tr>
-                @empty
-                    <tr><td colspan="3" class="empty-state">Belum ada aktivitas preview atau unduh.</td></tr>
-                @endforelse
-                </tbody>
-            </table></div>
+            <div class="table-scroll">
+                <table class="archive-table">
+                    <thead><tr><th>Judul Dokumen</th><th>Kategori</th><th>Tanggal</th><th>Akses</th><th class="actions-column">Aksi</th></tr></thead>
+                    <tbody>
+                    <template x-for="arsip in filteredArchives()" :key="arsip.id">
+                        <tr>
+                            <td class="archive-title-cell">
+                                <button type="button" class="text-link archive-title" x-text="arsip.judul" x-on:click="openPreview(arsip, $event.currentTarget)" x-bind:title="arsip.judul"></button>
+                                <span class="archive-meta" x-text="'No. ' + arsip.nomor + ' · ' + arsip.format + ' (' + arsip.ukuran + ')'"></span>
+                            </td>
+                            <td><span class="category-badge" x-bind:class="categoryClass(arsip.kategori)" x-text="arsip.kategori"></span></td>
+                            <td class="date-cell" x-text="arsip.tanggal"></td>
+                            <td><span class="access-badge" x-bind:class="arsip.akses === 'Terbatas' || arsip.akses === 'Rahasia' ? 'access-restricted' : ''"><svg x-show="arsip.akses === 'Terbatas' || arsip.akses === 'Rahasia'" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg><span x-text="arsip.akses"></span></span></td>
+                            <td class="row-actions">
+                                <button class="icon-button favorite-action" type="button" x-bind:class="{ 'is-favorite': favoriteIds.includes(arsip.id) }" x-bind:aria-pressed="favoriteIds.includes(arsip.id)" x-bind:aria-label="favoriteIds.includes(arsip.id) ? 'Hapus dari favorit' : 'Tambahkan ke favorit'" title="Favorit" x-on:click="toggleFavorite(arsip)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg></button>
+                                <button class="icon-button preview-action" type="button" x-bind:aria-label="'Pratinjau ' + arsip.judul" title="Pratinjau" x-on:click="openPreview(arsip, $event.currentTarget)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                                <a class="icon-button download-action" x-bind:href="arsip.downloadUrl" x-bind:aria-label="'Unduh ' + arsip.judul" title="Unduh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg></a>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr x-show="filteredArchives().length === 0"><td class="table-empty" colspan="5">Tidak ada arsip untuk filter ini. <button type="button" class="text-link" x-on:click="kategori = ''; tahun = ''">Reset filter</button></td></tr>
+                    </tbody>
+                </table>
+                @if($arsips->isEmpty())
+                    <div class="empty-card-state"><span class="empty-icon">▤</span><strong>Belum ada arsip yang tersedia</strong><p>Dokumen yang dapat Anda akses akan muncul di sini.</p></div>
+                @endif
+            </div>
+            @if($arsips->hasPages())
+                <div class="pagination-wrap">{{ $arsips->links() }}</div>
+            @endif
         </section>
 
-        <section class="pegawai-panel">
-            <h2>Status Pengajuan / Permohonan Arsip <span style="color:#64748B;font-size:12px">({{ $totalPermohonan }})</span></h2>
-            <div class="pegawai-table-wrap"><table class="pegawai-table">
-                <thead><tr><th>Permohonan</th><th>Status</th><th>Diajukan</th></tr></thead>
-                <tbody>
-                @forelse($permohonan as $item)
-                    <tr><td>{{ $item->judul_arsip }}</td><td><span class="status" style="{{ $item->status === 'Disetujui' ? 'background:#DCFCE7;color:#166534' : ($item->status === 'Ditolak' ? 'background:#FEE2E2;color:#991B1B' : '') }}">{{ $item->status }}</span></td><td>{{ $item->created_at->format('d/m/Y') }}</td></tr>
-                @empty
-                    <tr><td colspan="3" class="empty-state">Belum ada permohonan arsip.</td></tr>
-                @endforelse
-                </tbody>
-            </table></div>
-            <form class="request-form" action="{{ route('pegawai.permohonan.store') }}" method="POST" style="margin-top:16px">
-                @csrf
-                <input type="text" name="judul_arsip" value="{{ old('judul_arsip') }}" maxlength="255" required placeholder="Judul arsip yang dibutuhkan">
-                <textarea name="keterangan" rows="2" maxlength="2000" placeholder="Keterangan atau alasan permohonan (opsional)">{{ old('keterangan') }}</textarea>
-                <button type="submit">Ajukan Permohonan</button>
-            </form>
-        </section>
+        <aside class="dashboard-side-widgets">
+            @include('pegawai.dashboard.partials.chart')
+            @include('pegawai.dashboard.partials.favorites')
+        </aside>
     </div>
+
+    <div class="dashboard-bottom-grid">
+        @include('pegawai.dashboard.partials.activity')
+        @include('pegawai.dashboard.partials.requests')
+    </div>
+
+    @include('pegawai.dashboard.partials.preview-modal')
+
+    <div class="dashboard-toast" role="status" aria-live="polite" x-show="toast.visible" x-transition x-cloak x-text="toast.message"></div>
 </div>
 @endsection

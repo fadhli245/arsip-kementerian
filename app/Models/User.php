@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -51,5 +53,15 @@ class User extends Authenticatable
     public function arsips()
     {
         return $this->hasMany(Arsip::class);
+    }
+
+    public function favorites(): BelongsToMany
+    {
+        return $this->belongsToMany(Arsip::class, 'archive_favorites', 'user_id', 'arsip_id')->withTimestamps();
+    }
+
+    public function dashboardNotifications(): HasMany
+    {
+        return $this->hasMany(UserNotification::class);
     }
 }
