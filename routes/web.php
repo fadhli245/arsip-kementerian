@@ -89,7 +89,6 @@ Route::middleware(['auth', 'role:admin,super_admin,admin_divisi'])->prefix('admi
 
     // Riwayat Aktivitas
     Route::get('/aktivitas', [DashboardController::class, 'aktivitas'])->name('aktivitas');
-
 });
 
 Route::middleware(['auth', 'role:admin,super_admin,admin_divisi,verifikator'])->prefix('admin')->name('admin.')->group(function () {
