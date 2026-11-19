@@ -27,8 +27,12 @@
       "dest": "/public/build/$1"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/public/favicon.ico"
+      "src": "/(images|img|assets|storage|uploads)/(.*)",
+      "dest": "/public/$1/$2"
+    },
+    {
+      "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp|css|js|woff|woff2|ttf))",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",

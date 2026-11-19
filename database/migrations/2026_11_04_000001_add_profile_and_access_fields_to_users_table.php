@@ -11,23 +11,20 @@ return new class extends Migration
     {
         // 1. Tambah/penyesuaian kolom di tabel users
         Schema::table('users', function (Blueprint $table) {
-            // Tambahkan kolom 'role' jika belum ada
             if (!Schema::hasColumn('users', 'role')) {
-                $table->string('role', 30)->default('user')->after('email');
+                $table->string('role', 30)->default('user');
             }
 
-            // Tambahkan kolom 'division' jika belum ada
             if (!Schema::hasColumn('users', 'division')) {
-                $table->string('division')->nullable()->after('role');
+                $table->string('division')->nullable();
             }
 
-            // Tambahkan kolom 'is_active' jika belum ada
             if (!Schema::hasColumn('users', 'is_active')) {
-                $table->boolean('is_active')->default(true)->after('division');
+                $table->boolean('is_active')->default(true);
             }
         });
 
-        // 2. Jika tipe kolom 'role' di MySQL sebelumnya ENUM dan ingin diubah ke VARCHAR tanpa error doctrine/dbal
+        // 2. Ubah tipe kolom 'role' ke VARCHAR jika sebelumnya ENUM
         if (Schema::hasColumn('users', 'role')) {
             $driver = DB::connection()->getDriverName();
             if ($driver === 'mysql' || $driver === 'mariadb') {
